@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=Mago
+comment1.params=
+comment1.target=Mago()
+comment2.params=nombre\ nivel\ puntosDeVida_Maximos\ puntosDeVida_Actuales\ estado\ poderMagico
+comment2.target=Mago(java.lang.String,\ int,\ int,\ int,\ java.lang.String,\ int)
+comment3.params=
+comment3.target=int\ getPoderMagico()
+comment4.params=poderMagico
+comment4.target=void\ setPoderMagico(int)
+comment5.params=
+comment5.target=void\ subirDeNivel()
+comment6.params=
+comment6.target=void\ recibirDanio()
+comment7.params=
+comment7.target=void\ efectoDelEstado()
+comment8.params=
+comment8.target=java.lang.String\ toString()
+numComments=9

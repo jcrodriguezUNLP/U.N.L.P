@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1741782179 source:c:\users\jcrod\unlp\informatica\taller de lenguajes 1\practica1\main.c
+	<stdio.h>
+
+1744904294 source:c:\users\jcrod\u.n.l.p\informatica\taller de lenguajes 1\practica1\main.c
+	<stdio.h>
+	<stdlib.h>
+

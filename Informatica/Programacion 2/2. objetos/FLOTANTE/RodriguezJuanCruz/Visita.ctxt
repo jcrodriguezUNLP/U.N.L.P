@@ -1,0 +1,23 @@
+#BlueJ class context
+comment0.target=Visita
+comment1.params=
+comment1.target=Visita()
+comment10.params=
+comment10.target=java.lang.String\ toString()
+comment2.params=numDeVisita\ fecha\ egreso
+comment2.target=Visita(int,\ java.lang.String,\ boolean)
+comment3.params=
+comment3.target=int\ getNumDeVisita()
+comment4.params=
+comment4.target=java.lang.String\ getFecha()
+comment5.params=
+comment5.target=boolean\ getEgreso()
+comment6.params=numDeVisita
+comment6.target=void\ setNumDeVisita(int)
+comment7.params=fecha
+comment7.target=void\ setFecha(java.lang.String)
+comment8.params=egreso
+comment8.target=void\ setEgreso(boolean)
+comment9.params=
+comment9.target=double\ costoVisita()
+numComments=11

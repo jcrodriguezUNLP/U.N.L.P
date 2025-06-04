@@ -1,0 +1,27 @@
+#BlueJ class context
+comment0.target=Equipo
+comment1.params=
+comment1.target=Equipo()
+comment10.params=numAventurero
+comment10.target=void\ quitarAventurero(int)
+comment11.params=numAventurero
+comment11.target=Personaje\ obtenerAventurero(int)
+comment12.params=
+comment12.target=java.lang.String\ toString()
+comment2.params=aventureros\ cantAventureros\ MAX_AVENTUREROS
+comment2.target=Equipo(Personaje[],\ int,\ int)
+comment3.params=
+comment3.target=Personaje[]\ getAventureros()
+comment4.params=
+comment4.target=int\ getCantAventureros()
+comment5.params=
+comment5.target=int\ getMAX_AVENTUREROS()
+comment6.params=aventureros
+comment6.target=void\ setAventureros(Personaje[])
+comment7.params=cantAventureros
+comment7.target=void\ setCantAventureros(int)
+comment8.params=MAX_AVENTUREROS
+comment8.target=void\ setMAX_AVENTUREROS(int)
+comment9.params=aventurero
+comment9.target=void\ agregarAventurero(Personaje)
+numComments=13
