@@ -1,0 +1,101 @@
+;2) Pasaje de parámetros a través de registros y la pila ⭐  
+;A) Completar las instrucciones del siguiente programa, que envía a una subrutina 3 valores A, B y C por valor a través de registros AL, AH y CL, calcula AL+AH-CL, y devuelve el resultado por valor en DL.  
+
+org 1000h              ; Comienzo del segmento de datos
+A db 8                 ; Variable A con valor 8
+B db 5                 ; Variable B con valor 5
+C db 4                 ; Variable C con valor 4
+D db ?                 ; Variable D para almacenar el resultado
+ 
+org 3000h              ; Comienzo del segmento de código de la subrutina
+CALC:
+    mov dl, al         ; Copia el valor de AL (A) en DL                     ; completado por mi
+    add dl, ah         ; Suma el valor de AH (B) a DL
+    sub dl, cl         ; Resta el valor de CL (C) a DL
+ret                    ; Retorna a la rutina principal                      ; completado por mi
+
+org 2000h              ; Comienzo del programa principal
+    mov al, A          ; Carga el valor de A en AL                          ; completado por mi
+    mov ah, B          ; Carga el valor de B en AH                          ; completado por mi
+    mov cl, C          ; Carga el valor de C en CL                          ; completado por mi
+    call CALC          ; Llama a la subrutina CALC                          ; completado por mi
+    mov D, dl          ; Guarda el resultado de DL en D
+    int 0              ; Finaliza el programa
+end
+ 
+;B) Idem el inciso anterior, pero los valores A, B y C se reciben mediante  pasaje de parámetros por valor a través de la pila.
+;   El resultado se devuelve de igual forma por el registro dl  y por valor. 
+   
+org 1000h              ; Comienzo del segmento de datos
+A db 8                 ; Variable A con valor 8
+B db 5                 ; Variable B con valor 5
+C db 4                 ; Variable C con valor 4
+D db ?                 ; Variable D para almacenar el resultado
+ 
+org 3000h              ; Comienzo del segmento de código de la subrutina
+CALC:
+    push bx            ; Guarda el valor original de BX en la pila
+    mov  bx, sp        ; BX apunta al tope de la pila
+    add  bx, 8         ; BX apunta al primer parámetro (A)               ; completado por mi
+    mov  dl, [bx]      ; DL = A (copia el primer parámetro)
+    sub  bx, 2         ; BX apunta al segundo parámetro (B)
+    add  dl, [bx]      ; DL = DL + B (suma el segundo parámetro)         ; completado por mi
+    sub  bx, 2         ; BX apunta al tercer parámetro (C)
+    sub  dl, [bx]      ; DL = DL - C (resta el tercer parámetro)         ; completado por mi
+    pop  bx            ; Restaura el valor original de BX
+ret                    ; Retorna a la rutina principal                   ; completado por mi
+
+org 2000h              ; Comienzo del programa principal
+    mov  al, A         ; Carga el valor de A en AL
+    push ax            ; Apila el valor de A (primer parámetro)
+    mov  al, B         ; Carga el valor de B en AL                       ; completado por mi
+    push ax            ; Apila el valor de B (segundo parámetro)
+    mov  al, C         ; Carga el valor de C en AL                       ; completado por mi
+    push ax            ; Apila el valor de C (tercer parámetro)
+    call CALC          ; Llama a la subrutina CALC
+    mov D, dl          ; Guarda el resultado de DL en D
+    pop ax             ; Desapila el tercer parámetro (C)                ; completado por mi
+    pop ax             ; Desapila el segundo parámetro (B)               ; completado por mi
+    pop ax             ; Desapila el primer parámetro (A)                ; completado por mi
+    int 0              ; Finaliza el programa
+end
+ 
+; C) Modificar el programa anterior para enviar los parámetros A, B y C a través de la pila pero ahora por referencia.
+org 1000h              ; Comienzo del segmento de datos
+A db 8                 ; Variable A con valor 8
+B db 5                 ; Variable B con valor 5
+C db 4                 ; Variable C con valor 4
+D db ?                 ; Variable D para almacenar el resultado
+ 
+org 3000h              ; Comienzo del segmento de código de la subrutina
+CALC:
+    push bx            ; Guarda el valor original de BX en la pila
+    mov  bx, sp        ; BX apunta al tope de la pila
+    add  bx, 8         ; BX apunta al primer parámetro (dirección de A)
+    mov  bx, [bx]      ; BX = dirección de A
+    mov  dl, [bx]      ; DL = [A] (carga el valor de A usando la dirección)
+    mov  bx, sp        ; BX apunta nuevamente al tope de la pila
+    add  bx, 6         ; BX apunta al segundo parámetro (dirección de B)
+    mov  bx, [bx]      ; BX = dirección de B
+    add  dl, [bx]      ; DL = DL + [B] (suma el valor de B usando la dirección)
+    mov  bx, sp        ; BX apunta nuevamente al tope de la pila
+    add  bx, 4         ; BX apunta al tercer parámetro (dirección de C)
+    mov  bx, [bx]      ; BX = dirección de C
+    sub  dl, [bx]      ; DL = DL - [C] (resta el valor de C usando la dirección)
+    pop  bx            ; Restaura el valor original de BX
+    ret                ; Retorna a la rutina principal
+
+org 2000h              ; Comienzo del programa principal
+    mov  ax, offset A  ; Carga la dirección de A en AX
+    push ax            ; Apila la dirección de A (primer parámetro)
+    mov  ax, offset B  ; Carga la dirección de B en AX
+    push ax            ; Apila la dirección de B (segundo parámetro)
+    mov  ax, offset C  ; Carga la dirección de C en AX
+    push ax            ; Apila la dirección de C (tercer parámetro)
+    call CALC          ; Llama a la subrutina CALC
+    mov D, dl          ; Guarda el resultado de DL en D
+    pop ax             ; Desapila el tercer parámetro (dirección de C)
+    pop ax             ; Desapila el segundo parámetro (dirección de B)
+    pop ax             ; Desapila el primer parámetro (dirección de A)
+    hlt                ; Finaliza el programa
+end

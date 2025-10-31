@@ -1,0 +1,53 @@
+; 2) Mostrar mensajes en la pantalla de comandos ⭐ 
+; El siguiente programa del lenguaje assembler del simulador VonSim muestra en la pantalla de comandos un mensaje 
+; previamente almacenado en memoria de datos, aplicando la interrupción por software INT 7. Probar en el simulador. 
+
+ORG 1000H                               ; Comienza la sección de datos en la dirección 1000H
+MSJ DB "ARQUITECTURA DE COMPUTADORAS-"  ; Primer parte del mensaje
+    DB  "FACULTAD DE INFORMATICA-"      ; Segunda parte del mensaje
+    DB  55H                             ; 'U' en ASCII
+    DB  4EH                             ; 'N' en ASCII
+    DB  4CH                             ; 'L' en ASCII
+    DB  50H                             ; 'P' en ASCII
+FIN DB  ?                               ; Marca el final del mensaje
+
+ORG 2000H                               ; Comienza la sección de código en la dirección 2000H
+MOV BX, OFFSET MSJ                      ; BX apunta al inicio del mensaje
+MOV AL, OFFSET FIN - OFFSET MSJ         ; AL contiene la longitud del mensaje a mostrar
+INT 7                                   ; Interrupción para mostrar el mensaje en pantalla
+INT 0                                   ; Interrupción para finalizar el programa
+END                                     ; Fin del código fuente
+  
+; a)  Ejecutar en el simulador ¿qué imprime? 
+;    Imprime: ARQUITECTURA DE COMPUTADORAS-FACULTAD DE INFORMATICA-UNLP
+
+; b)  ¿Por qué imprime “UNLP” al final? 
+;    Porque los valores 55H, 4EH, 4CH y 50H corresponden a los caracteres ASCII 'U', 'N', 'L', 'P'.
+
+; c)  Con referencia a la interrupción INT 7, ¿qué se almacena en los registros BX y AL? 
+;    BX: dirección de inicio del mensaje (offset de MSJ)
+;    AL: cantidad de caracteres a mostrar (OFFSET FIN - OFFSET MSJ)
+
+; d)  Modifique el programa para que solo imprima la primera parte del mensaje: “ARQUITECTURA DE COMPUTADORAS-” 
+;    Cambia el mensaje para que solo contenga esa parte y ajusta AL:
+   ORG 1000H
+   MSJ DB "ARQUITECTURA DE COMPUTADORAS-"
+   FIN DB  ?
+
+   ORG 2000H
+   MOV BX, OFFSET MSJ
+   MOV AL, OFFSET FIN - OFFSET MSJ
+   INT 7
+   INT 0
+   END
+
+; e)  Modifique el programa para que solo imprima la primera letra, es decir, la “A” Solo debes mostrar 1 carácter:
+   ORG 1000H
+   MSJ DB "ARQUITECTURA DE COMPUTADORAS-"
+   
+   ORG 2000H
+   MOV BX, OFFSET MSJ
+   MOV AL, 1
+   INT 7
+   INT 0
+   END

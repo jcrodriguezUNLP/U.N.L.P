@@ -3,10 +3,6 @@
 ; Familiarizarse con los conceptos que rodean a la escritura de subrutinas en una arquitectura RISC:
 ; Uso normalizado de los registros, pasaje de parámetros y retorno de resultados, generación y manejo de la pila y anidamiento de subrutinas.
 
-; 7) Escriba una subrutina que reciba como parámetros un número positivo M de 64 bits, la dirección del comienzo de una tabla
-;    que contenga valores numéricos de 64 bits sin signo y la cantidad de valores almacenados en dicha tabla.
-;    La subrutina debe retornar la cantidad de valores mayores que M contenidos en la tabla.
-;
 ; 8) Escriba una subrutina que reciba como parámetros las direcciones del comienzo de dos cadenas terminadas en cero y
 ;    retorne la posición en la que las dos cadenas difieren. En caso de que las dos cadenas sean idénticas, debe retornar -1.
 ;

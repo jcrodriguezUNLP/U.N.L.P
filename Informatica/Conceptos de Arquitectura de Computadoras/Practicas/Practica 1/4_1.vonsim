@@ -1,0 +1,112 @@
+; 1) Acceso con contraseña ⭐⭐ Escribir un programa que solicite el ingreso de una contraseña de 4 caracteres por teclado, sin visualizarla en pantalla.
+; En caso de coincidir con una clave predefinida (y guardada en memoria) que muestre el mensaje "Acceso permitido";
+; caso contrario mostrar el mensaje "Acceso denegado", y volver a pedir que se ingrese una contraseña.
+; Al 5to intento fallido, debe mostrarse el mensaje “Acceso BLOQUEADO” y terminar el programa.
+; Para implementar el programa, deberá implementar  y llamar a las siguientes subrutinas: 
+; a)  LEER_CONTRA: recibe una dirección de memoria y una longitud N, y lee una contraseña de N carácteres de teclado y la almacena en la dirección recibida 
+; b)  COMPARAR_STRING: recibe 2 direcciones de memoria, y una longitud N, y devuelve 0FFh si los strings son iguales, y 0 si son distintos 
+; c)  MOSTRAR_MENSAJE: recibe el resultado de COMPARAR_STRING, y la cantidad de intentos restantes. 
+; Imprime el mensaje correspondiente (Acceso permitido/denegado/BLOQUEADO)
+
+longitudContra equ 4                                                    ; Longitud de la contraseña
+
+org 1000h                                                               ; Segmento de datos
+    clavePredef       db  "1234"                                        ; Clave predefinida (contraseña correcta)
+    mensajePermitido  db  "Acceso PERMITIDO"                            ; Mensaje para acceso exitoso
+    mensajeDenegado   db  "Acceso DENEGADO"                             ; Mensaje para acceso fallido
+    mensajeBloqueado  db  "Acceso BLOQUEADO"                            ; Mensaje para acceso bloqueado
+    intentosRestantes db  5                                             ; Contador de intentos fallidos
+    salto             db  10                                            ; Código ASCII de salto de línea (LF)
+    contraIngresada   db  ?                                             ; Espacio para almacenar la contraseña ingresada
+
+org 3000h                                                               ; Segmento de código de subrutinas
+    LEER_CONTRA:                                                        ; Subrutina para leer la contraseña
+        int 6                                                           ; Lee un carácter del teclado (sin mostrarlo)
+        inc bx                                                          ; Avanza el puntero en el buffer
+        dec cx
+        
+        jnz LEER_CONTRA                                                 ; Si no, sigue leyendo
+    ret                                                                 ; Retorna al programa principal
+
+    COMPARAR_STRING:                                                    ; Subrutina para comparar la contraseña ingresada con la predefinida
+        add ax, 0                                                       ; para q no tire error por la etiqueta sin instruccion
+        compararCaracter:                                               ; Bucle de comparación carácter a carácter
+            push bx                                                     ; Guarda BX en la pila (puntero a contraIngresada)
+            push ax                                                     ; Guarda AX en la pila (puntero a clavePredef)
+            
+            pop bx                                                      ; guarda ax en bx
+            mov dh, [bx]                                                ; DH = carácter de clave predefinida
+            
+            pop bx                                                      ; restaura bx
+            mov dl, [bx]                                                ; DL = carácter de contraseña ingresada
+
+            cmp dh, dl                                                  ; Compara ambos caracteres
+            jnz distintos                                               ; Si son distintos, sale (no coincide)
+
+            inc ax                                                      ; Pasa al siguiente carácter
+            inc bx                                                      ; Pasa al siguiente carácter
+            dec cx                                                      ; Decrementa el contador
+        jnz compararCaracter                                            ; Si no, sigue comparando
+
+        mov dx, 0ffh                                                    ; asigna 0ffh si son iguales
+        jmp salir                                                       ; sale
+
+        distintos: 
+            mov dx, 0                                                   ; Fin de la comparación
+        
+        salir:                                                          ; Fin de la comparación
+    ret                                                                 ; Retorna (resultado en flags)
+
+    MOSTRAR_MENSAJE:                                                    ; Subrutina para mostrar el mensaje correspondiente
+        cmp dx, 0FFh                                                    ; ¿Se ingresó la contraseña correcta?
+        jz acceso_permitido                                             ; Si sí, salta a mensaje de acceso permitido
+
+        dec byte ptr [bx]                                                        ; Decrementa los intentos restantes
+        jnz acceso_denegado                                             ; Si llegan a 0, salta a mensaje de acceso bloqueado
+
+        mov bx, offset mensajeBloqueado                                  ; BX apunta al mensaje de acceso bloqueado
+        mov al, offset intentosRestantes - offset mensajeBloqueado       ; AL = longitud del mensaje
+        jmp imprimir                                                    ; Salta a imprimir
+
+        acceso_permitido:                                               ; Mensaje de acceso permitido
+            mov bx, offset mensajePermitido                             ; BX apunta al mensaje de acceso permitido
+            mov al, offset mensajeDenegado - offset mensajePermitido    ; AL = longitud del mensaje permitido
+        jmp imprimir                                                    ; Salta a imprimir  
+
+        acceso_denegado:
+            mov bx, offset mensajeDenegado                                  ; BX apunta al mensaje de acceso denegado
+            mov al, offset mensajeBloqueado - offset mensajeDenegado                 ; AL = longitud del mensaje denegado
+        jmp imprimir                                                    ; Salta a imprimir
+        
+        imprimir:                                                       ; Imprime el mensaje seleccionado
+            int 7                                                       ; Llama a la rutina de impresión
+            mov bx, offset salto                                        ; BX = código ASCII de salto de línea (10)
+            mov al, 1                                                   ; AL = longitud (1 carácter)
+            int 7                                                       ; Imprime el salto de línea
+    ret                                                                 ; Retorna al programa principal
+
+org 2000h                                                               ; Programa principal
+    loop:
+        mov bx, offset contraIngresada                                  ; BX apunta al buffer donde se guarda la contraseña
+        mov cx, longitudContra                                          ; CX = longitud de la contraseña
+        
+        call LEER_CONTRA                                                ; Lee la contraseña del usuario
+        
+        mov ax, offset clavePredef                                      ; AX apunta a la clave predefinida
+        mov bx, offset contraIngresada                                  ; BX apunta a la contraseña ingresada
+        mov cx, longitudContra                                          ; CX = longitud de la contraseña
+        
+        call COMPARAR_STRING                                            ; Compara la contraseña ingresada con la predefinida
+        
+        mov bx, offset intentosRestantes
+        call MOSTRAR_MENSAJE                                            ; Muestra el mensaje correspondiente
+
+        cmp dx, 0FFh                                                    ; ¿Se ingresó la contraseña correcta?
+        jz terminar
+        
+        cmp intentosRestantes, 0                                        ; ¿Se alcanzó el máximo de intentos?
+    jnz loop                                                        ; Si no, vuelve a pedir la contraseña
+    
+    terminar:
+    int 0                                                               ; Finaliza el programa
+end

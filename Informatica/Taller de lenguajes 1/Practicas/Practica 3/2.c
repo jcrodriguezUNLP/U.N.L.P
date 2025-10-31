@@ -24,4 +24,4 @@ typedef struct persona {
 // Diferencias entre ambos bloques:
 // 1. En el primer bloque, se declara una variable "unaPersona" de tipo "struct persona".
 // 2. En el segundo bloque, no se declara ninguna variable directamente.
-// 3. Ambos bloques definen un alias "persona_t" para simplificar el uso de "struct persona".
+// 3. Ambos bloques definen un alias "persona_t" para simplificar el uso de "struct persona". 

@@ -1,0 +1,157 @@
+
+org 1000h
+salto               db 10
+cantNotas           db 0
+cantAprob           db 0
+promedio            db 0
+mensajeNotas        db "Ingrese una nota: "
+mensajePorcentaje   db "Porcentaje de aprobados: "
+porcentaje          db 0
+notas               db ?      ; Vector para almacenar hasta 100 notas
+
+;----------------------------------------------
+org 3000h
+;----------------------------------------------
+IMPRIMIR_SALTO:
+    mov bx, offset salto
+    mov al, 1
+    int 7
+ret
+
+;----------------------------------------------
+; 📄 LEER_NOTAS
+; Entrada:
+;   BX -> dirección del vector de notas
+; Salida:
+;   CL -> cantidad de notas leídas
+;----------------------------------------------
+LEER_NOTAS:
+    mov cx, 0
+
+leerNota:
+    mov dx, offset mensajeNotas
+    mov al, offset mensajePorcentaje - offset mensajeNotas
+    int 7
+
+    mov al, 1
+    int 6                         ; Lee una nota (carácter)
+    cmp byte ptr [bx], '.'
+    jz finLeer
+
+    sub byte ptr [bx], '0'        ; Convierte de ASCII a número
+    inc bx
+    inc cx
+    call IMPRIMIR_SALTO
+jmp leerNota
+
+finLeer:
+ret
+
+;----------------------------------------------
+; 📄 CALC_APROBADOS
+; Entrada:
+;   BX -> dirección del vector de notas
+;   CX -> cantidad de notas
+; Salida:
+;   CL -> cantidad de aprobadas
+;----------------------------------------------
+CALC_APROBADOS:
+mov al, 0                     ; Contador de aprobados
+
+    loopAprob:
+      cmp byte ptr [bx], 4
+      js noAprob
+      
+      inc al
+    noAprob:
+    inc bx
+     loopAprob
+ret
+
+;----------------------------------------------
+; 📄 MUL
+; Entrada:
+;   AX = A
+;   DX = B
+; Salida:
+;   CX = resultado (A * B)
+;----------------------------------------------
+MUL:
+    mov cx, 0
+loopMul:
+    add cx, dx
+    dec ax
+    jnz loopMul
+ret
+
+;----------------------------------------------
+; 📄 DIV
+; Entrada:
+;   AX = dividendo
+;   DX = divisor
+; Salida:
+;   CX = cociente
+;   AX = resto
+;----------------------------------------------
+DIV:
+    mov cx, 0
+divLoop:
+    cmp ax, dx
+    jb finDiv
+    sub ax, dx
+    inc cx
+jmp divLoop
+finDiv:
+ret
+
+;----------------------------------------------
+; 📄 PORCENTAJE
+; Entrada:
+;   AL = cantidad aprobadas
+;   BL = cantidad total
+; Salida:
+;   CL = porcentaje entero (0-100)
+;----------------------------------------------
+PORCENTAJE:
+    mov ah, 0
+    mov dx, 100
+    call MUL                      ; CX = 100 * aprobadas
+    mov ax, cx                    ; AX = producto
+    mov dl, bl
+    mov dh, 0
+    call DIV                      ; CX = (100 * aprobadas) / total
+ret
+
+;----------------------------------------------
+org 2000h
+;----------------------------------------------
+; --- Leer las notas ---
+    mov bx, offset notas
+    call LEER_NOTAS
+    mov cantNotas, cl
+
+; --- Calcular cantidad de aprobadas ---
+    mov bx, offset notas
+    mov cl, cantNotas
+    call CALC_APROBADOS
+    mov cantAprob, al
+
+; --- Calcular porcentaje ---
+    mov al, cantAprob
+    mov bl, cantNotas
+    call PORCENTAJE
+    mov porcentaje, cl
+
+; --- Mostrar resultado ---
+    mov bx, offset mensajePorcentaje
+    mov al, offset porcentaje - offset mensajePorcentaje
+    int 7
+
+    mov bx, offset porcentaje
+    add byte ptr [bx], '0'
+    mov al, 1
+    int 7
+    call IMPRIMIR_SALTO
+
+int 0
+end

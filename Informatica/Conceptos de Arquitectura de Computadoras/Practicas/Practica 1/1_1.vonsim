@@ -1,0 +1,46 @@
+; Parte 1: Entrada/Salida con Interrupciones por Software 
+
+;--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+; Instrucción |  Operación                                                                                                                                                                                                                        |
+;-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+; INT 0       |  Detiene el programa. Similar al HLT, pero permite que se terminen de ejecutar las interrupciones.                                                                                                                                | 
+;-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+; INT 3       |  Pausa la ejecución del simulador, y lo pone en modo de depuración para poder inspeccionar el programa.                                                                                                                           |
+;-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+; INT 6       |  Lee un carácter de teclado. Para usarla previamente se debe guardar en BX la dirección de memoria en donde se almacenará el carácter leído. Luego de ejecutar INT 6, el carácter leído se encontrará en esa dirección de memoria |                                                                 |
+;-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+; INT 7       |  Imprime un string en pantalla. Previo a llamar a INT 7, se debe guardar en BX la dirección de comienzo del string a mostrar, y en AL la longitud o cantidad de carácteres del string.                                            |                                                                 |
+;--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+; 1) Repaso de VonSim: Contar Letras ⭐  
+; Escribir un programa que declare un string llamado MENSAJE, almacenado en la memoria de datos
+; cuente la cantidad de veces que la letra ‘a’ (minúscula) aparece en MENSAJE y lo almacene en la variable CANT
+; Por ejemplo, si MENSAJE contiene “Hola, Buenas Tardes”, entonces CANT debe valer 3
+
+ORG 1000h
+MENSAJE db "Hola, Buenas Tardes"     ; String MENSAJE en memoria de datos
+CANT    db 0                         ; Variable para almacenar la cantidad de 'a'
+
+ORG 2000h
+mov bx, offset MENSAJE               ; BX apunta al inicio de MENSAJE
+mov cl, offset CANT - offset MENSAJE ; CL almacena la longitud del mensaje
+mov dl, 0                            ; DL será el contador de letras 'a'
+
+loop:
+    cmp cl, 0                        ; ¿Quedan caracteres por procesar?
+    jz fin                           ; Si CL es 0, termina el bucle
+
+    mov al, [bx]                     ; AL = carácter actual de MENSAJE
+    cmp al, 'a'                      ; ¿Es 'a' minúscula?
+    jnz seguir                       ; Si no es 'a', salta a SEGUIR
+    inc dl                           ; Si es 'a', incrementa el contador
+
+seguir:
+    inc bx                           ; Avanza al siguiente carácter
+    dec cl                           ; Decrementa el contador de caracteres
+    jmp loop                         ; Repite el bucle
+
+fin: 
+    mov CANT, dl                     ; Guarda el resultado en CANT
+    hlt                              ; Fin del programa
+END

@@ -1,0 +1,82 @@
+org 1000h
+    vector dw 1, -20, 15, 12, 5, -8, 7, 11
+    long   dw 8
+    res    dw ?
+
+org 3000h
+    ES_IMPAR:
+        ; recibe:
+        ;   CX = numero
+        ; retorna:
+        ;   AX = 1 Impar / AX = 0 Par
+
+        mov dx, cx
+
+        cmp dx, 0 
+        jns positivo 
+
+        ; negativo
+            sub dx, cx
+            sub dx, cx
+
+        positivo:
+            cmp dx, 1
+            jz Impar
+
+            sub dx, 2
+        jnz positivo
+
+        ; Par
+            mov ax, 0
+            jmp finES_IMPAR
+        
+        Impar:
+            mov ax, 1
+        
+        finES_IMPAR:
+    ret
+
+    PROCESAR:
+        ; recibe:
+        ;   BX = dirección del vector
+        ;   CX = longitud del vector
+        ; retorna:
+        ;   AX = suma de los numeros impares
+
+        mov ax, 0
+
+        loop:
+            push ax
+            push cx
+
+            mov cx, [bx]
+
+            call ES_IMPAR
+
+            mov dx, ax
+
+            pop cx
+            pop ax
+
+            cmp dx, 1
+            jnz continuar
+
+            ; impar
+                add ax, [bx]
+            
+            continuar:
+                add bx, 2
+                dec cx
+        jnz loop
+    ret
+
+org 2000h
+    mov bx, offset vector
+    mov cx, long
+
+    call PROCESAR
+
+    mov res, ax
+
+    int 0
+end

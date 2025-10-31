@@ -1,0 +1,78 @@
+; 4) Errores comunes al mostrar y leer caracteres  ⭐ 
+; Los siguientes programas leen e imprimen carácteres.
+; Indicar cuáles tienen errores y cómo solucionarlos. 
+
+;-----------------------
+ORG 1000H                  ; Comienza la sección de datos
+A DB “HO LA”               ; String a imprimir (¡OJO! comillas incorrectas, deben ser ")
+B DB ?                     ; Variable no utilizada
+ 
+ORG 2000H                  ; Comienza la sección de código
+mov bx, offset A           ; BX apunta al inicio de A
+mov al, 4                  ; AL = 4, pero el string tiene 5 caracteres (debería ser 5)
+int 7                      ; Imprime 4 caracteres desde A
+int 0                      ; Fin del programa
+END                        
+; Error: AL debería ser 5 para imprimir todo el string. Además, las comillas deben ser dobles (").
+
+;-----------------------
+ORG 1000H                  ; Comienza la sección de datos
+A DB “ARQ”                 ; String a imprimir (¡OJO! comillas incorrectas)
+B DB ?                     ; Variable no utilizada
+ 
+ORG 2000H                  ; Comienza la sección de código
+mov al, 3                  ; AL = 3, longitud correcta para "ARQ"
+mov bx, A                  ; BX apunta a A (aceptable, pero mejor usar offset A)
+int 7                      ; Imprime 3 caracteres desde A
+int 0                      ; Fin del programa
+END                        
+; Error: Las comillas deben ser dobles ("). Mejor usar mov bx, offset A para claridad.
+
+;-----------------------
+ORG 1000H                  ; Comienza la sección de datos
+A DB “HOLA”                ; String a imprimir (¡OJO! comillas incorrectas)
+B DB ?                     ; Variable no utilizada
+ 
+ORG 2000H                  ; Comienza la sección de código
+mov al, offset A - offset B ; AL = offset A - offset B, esto da un valor negativo o 0 (¡Error!)
+mov bx, offset A           ; BX apunta a A
+int 7                      ; No imprimirá nada útil
+int 0                      ; Fin del programa
+END                        
+; Error: offset A - offset B no da la longitud del string, sino la distancia entre variables (puede ser negativo o 0).
+
+;-----------------------
+ORG 1000H                  ; Comienza la sección de datos
+A DB ?                     ; Variable para almacenar datos
+ 
+ORG 2000H                  ; Comienza la sección de código
+mov al, 3                  ; AL = 3, pero INT 6 no usa AL (¡Error!)
+mov bx, A                  ; BX apunta a A
+int 6                      ; Lee un carácter y lo guarda en A
+int 0                      ; Fin del programa
+END                        
+; Error: AL no se usa en INT 6, no tiene efecto poner mov al, 3.
+
+;-----------------------
+ORG 1000H                  ; Comienza la sección de datos
+A DB ?                     ; Variable para almacenar datos
+ 
+ORG 2000H                  ; Comienza la sección de código
+int 6                      ; Lee un carácter, pero BX no está inicializado (¡Error!)
+mov bx, offset A           ; BX se inicializa después, pero demasiado tarde
+int 0                      ; Fin del programa
+END                        
+; Error: BX debe apuntar a A antes de llamar a INT 6, si no, el dato se guarda en una dirección incorrecta.
+
+;-----------------------
+ORG 1000H                  ; Comienza la sección de datos
+A DB ?                     ; Variable para almacenar datos
+ 
+ORG 2000H                  ; Comienza la sección de código
+mov bx, A                  ; BX apunta a A (aceptable, pero mejor usar offset A)
+int 6                      ; Lee un carácter y lo guarda en A
+mov al, 1                  ; AL = 1, para mostrar un carácter
+int 7                      ; Imprime el carácter guardado en A
+int 0                      ; Fin del programa
+END                        
+; No hay error grave, pero es recomendable usar mov bx, offset A para claridad y compatibilidad.

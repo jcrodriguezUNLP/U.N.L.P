@@ -1,0 +1,92 @@
+; 3) Operaciones con Carácteres 
+ 
+; Escribir un programa que lea un string, lo almacene en MENSAJE y convierta todos sus carácteres a minúscula.  Por 
+; ejemplo, si MENSAJE contiene “Hola, Buenas Tardes”, luego de la conversión debe contener “hola, buenas tardes”. 
+; Mostrar en pantalla el mensaje luego de la conversión. Para ello, debe implementar y utilizar las siguientes subrutinas: 
+ 
+; 1.  📄 ES_MAYUS ⭐
+;   Recibe un carácter en el registro AL y retorna en AH el valor 0FFh si es mayúscula y 0 de lo contrario.
+;   Pista: Los códigos de las mayúsculas son todos consecutivos. Buscar en la tabla ASCII los caracteres mayúscula, y observar qué valores ASCII tienen la ‘A’ y  la ‘Z’. 
+; 2.  📄 A_MINUS ⭐
+;   Recibe un carácter mayúscula en AL y lo devuelve como minúscula.
+;   Pista: Las mayúsculas y las minúsculas están en el mismo orden en el ASCII, y por ende la distancia entre, por ejemplo, la “A” y la “a” es la misma que la distancia entre la “Z” y la “z”. 
+; 3.  📄 STRING_A_MINUS ⭐⭐
+;   Recibe la dirección de comienzo de un string en BX,  su longitud en AL. 
+;   Recorre el string, cambiando a minúscula las letras que sean mayúsculas. 
+;   No retorna nada, sino que modifica el string directamente en la memoria.
+
+; 1) ----------------------------------------------------------------------------
+org 1000h
+    CARACTER db ?               ; Variable para almacenar el carácter leído
+    ES_MINUS db "es minuscula"  ; Mensaje para minúscula
+    ES_MAYUS db "es mayuscula"  ; Mensaje para mayúscula
+    fin      db 0               ; Marca el final de los mensajes
+
+org 2000h
+    mov bx, offset CARACTER      ; BX apunta a la variable donde se guarda el carácter leído
+    int 6                        ; Lee un carácter desde teclado y lo guarda en CARACTER
+    cmp byte ptr [bx], 'a'       ; ¿El carácter es menor que 'a'? (compara con ASCII 97)
+    js es_mayuscula              ; Si es menor que 'a', es mayúscula o símbolo
+
+    es_minuscula:
+        mov ah, 0                ; AH = 0, indica que NO es mayúscula
+        mov bx, offset ES_MINUS  ; BX apunta al mensaje "es minuscula"
+        mov al, offset ES_MAYUS - offset ES_MINUS ; AL = longitud del mensaje "es minuscula"
+        jmp imprimir
+
+    es_mayuscula:
+        mov ah, 0FFh             ; AH = 0FFh, indica que es mayúscula
+        mov bx, offset ES_MAYUS  ; BX apunta al mensaje "es mayuscula"
+        mov al, offset fin - offset ES_MAYUS      ; AL = longitud del mensaje "es mayuscula"
+
+    imprimir:
+        int 7                    ; Imprime el mensaje en pantalla
+        int 0                    ; Termina el programa
+end
+
+; 2) ----------------------------------------------------------------------------
+org 1000h
+    CARACTER db ?               ; Variable para almacenar el carácter leído
+
+org 2000h
+    mov bx, offset CARACTER      ; BX apunta a la variable donde se guarda el carácter leído
+    int 6                        ; Lee un carácter desde teclado y lo guarda en CARACTER
+    mov al, [bx]                 ; AL = carácter leído desde memoria
+    add al, 32                   ; Convierte a minúscula sumando 32 (solo si era mayúscula) (En ASCII, 'a' - 'A' = 32)
+    mov CARACTER, al             ; Guarda el carácter convertido en minúscula en memoria
+    mov bx, offset CARACTER      ; BX apunta al carácter a imprimir
+    mov al, 1                    ; AL = 1, cantidad de caracteres a imprimir
+    int 7                        ; Imprime el carácter en pantalla
+    int 0                    ; Termina el programa
+end
+
+; 3) ----------------------------------------------------------------------------
+org 1000h
+    MENSAJE db "Hola, Buenas Tardes"    ; String a convertir a minúscula
+    fin     db 0                        ; Marca el final del string
+
+org 2000h
+    mov bx, offset MENSAJE              ; BX apunta al comienzo del string
+    mov al, offset fin - offset MENSAJE ; AL = longitud del string
+
+    loop:
+        cmp byte ptr [bx], 'a'          ; ¿El carácter es menor que 'a'? (compara con ASCII 97)
+        js es_mayuscula                 ; Si es menor que 'a', es mayúscula o símbolo
+
+        mov cl  , [bx]
+        sub cl  , 32
+        mov [bx], cl                    ; Convierte a minúscula sumando 32 (solo si era mayúscula)(En ASCII, 'a' - 'A' = 32)
+    
+    es_mayuscula:
+        inc bx
+        dec al                          ; Decrementa el contador de longitud
+        cmp al, 0                       ; ¿Quedan caracteres por procesar?
+        jnz loop
+
+    ; imprimir el resultado
+    mov bx, offset MENSAJE              ; BX apunta al comienzo del string
+    mov al, offset fin - offset MENSAJE ; AL = longitud del string
+    int 7
+
+    int 0                               ; Termina el programa
+end

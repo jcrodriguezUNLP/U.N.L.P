@@ -1,0 +1,206 @@
+; 4) Multiplicación de números sin signo con parámetros  
+ 
+; El pasaje de parámetros más usual suele ser por valor y por registro.
+; No obstante, en algunas ocasiones también se utilizan pasajes de parámetros más avanzados que permiten más flexibilidad o eficiencia.  
+; Escribir un programa que tenga dos valores de 8 bits A y B almacenados en su memoria y realice la multiplicación de A y B.
+; El resultado se debe guardar en la variable RES de 16 bits, o sea que RES = A ⨯ B. Para hacerlo, implementar una subrutina MUL: 
+ 
+; A.  ⭐ Pasando los parámetros por valor desde el programa principal a través de los registros AL y AH, y 
+; devolviendo el resultado a través del registro AX por valor. 
+; B.  ⭐⭐  Pasando  los  parámetros  por  referencia  desde  el  programa  principal  a  través  de  registros,  y 
+; devolviendo el resultado a través de un registro por valor.  
+; C.  ⭐⭐ Pasando los parámetros por valor desde el programa principal a través de registros, y devolviendo el 
+; resultado a través de un registro por referencia.  
+; D.  ⭐⭐ Pasando los parámetros por valor desde el programa principal a través de la pila, y devolviendo el 
+; resultado a través de un registro por valor. 
+; E.  ⭐⭐⭐ Pasando los parámetros por referencia desde el programa principal a través de la pila, y 
+; devolviendo el resultado a través de un registro por valor.
+
+; A)----------------------------------------------------------------------------
+org 1000h
+    A   db 5              ; Primer número a multiplicar (factor 1)
+    B   db 3              ; Segundo número a multiplicar (factor 2)
+    RES dw ?              ; Resultado inciso A (16 bits, para almacenar A * B)
+
+org 3000h    
+    MUL:
+        mov cx, 0         ; Inicializa CX en 0 (luego se usará como contador)
+        mov cl, ah        ; CL = B (segundo operando, cantidad de sumas a realizar)
+        mov bx, 0         ; BX = 0 (se usará como acumulador temporal, pero luego se pisa)
+        mov bl, al        ; BL = AL (guarda el valor de A en BL, pero BX se pisa después)
+        mov ax, 0         ; AX = 0 (acumulador del resultado final)
+
+        loop:
+            add ax, bx    ; Suma BX a AX (pero BX solo tiene A en BL, BH=0)
+            dec cx        ; Decrementa el contador de sumas
+        jnz loop          ; Si CX no es cero, repite el bucle
+    ret                   ; Devuelve el resultado en AX
+
+org 2000h
+    mov al, A             ; AL = A (carga el primer operando desde memoria)
+    mov ah, B             ; AH = B (carga el segundo operando desde memoria)
+    
+    call MUL              ; Llama a la subrutina de multiplicación
+
+    mov bx, offset RES    ; BX apunta a la dirección de RES
+    mov [bx], ax          ; Guarda el resultado de AX en RES
+    
+    int 0                 ; Termina el programa correctamente
+end
+
+; B)----------------------------------------------------------------------------
+org 1000h
+    A   db 5              ; Primer número a multiplicar
+    B   db 3              ; Segundo número a multiplicar
+    RES dw ?              ; Resultado inciso A (16 bits)
+
+org 3000h    
+    MUL:
+        mov cx, [bx]      ; CX = [BX], carga el valor de B como contador de sumas
+        mov bx, ax        ; BX = AX, donde AX contiene la dirección de A
+        mov ax, 0         ; AX = 0, inicializa el acumulador del resultado
+
+        loop:
+            add al, [bx]  ; Suma el valor apuntado por BX (A) a AL (acumulador)
+            dec cx        ; Decrementa el contador de sumas
+        jnz loop          ; Si CX no es cero, repite el bucle
+    ret                   ; Devuelve el resultado en DX (¡no en AX!)
+
+org 2000h
+    mov ax, offset A      ; AX = dirección de A (primer operando, por referencia)
+    mov bx, offset B      ; BX = dirección de B (segundo operando, por referencia)
+
+    call MUL              ; Llama a la subrutina de multiplicación
+
+    mov bx, offset RES    ; BX apunta a la dirección de RES
+    mov [bx], ax          ; Guarda el resultado de AX en RES (¡ojo, resultado está en AX!)
+
+    int 0                 ; Termina el programa correctamente
+end
+
+; otra forma de hacerlo:
+org 1000h
+    A   db 5              ; Primer número a multiplicar
+    B   db 3              ; Segundo número a multiplicar
+    RES dw ?              ; Resultado inciso A (16 bits)
+
+org 3000h    
+    MUL:
+        mov cx, [bx]      ; CX = [BX], carga el valor de B como contador de sumas
+        dec bx            ; BX = BX - 1, ahora BX apunta a A (primer operando)
+        mov ax, 0         ; AX = 0, inicializa el acumulador del resultado
+
+        loop:
+            add al, [bx]  ; Suma el valor apuntado por BX (A) a AL (acumulador)
+            dec cx        ; Decrementa el contador de sumas
+        jnz loop          ; Si CX no es cero, repite el bucle
+    ret                   ; Devuelve el resultado en DX (¡no en AX!)
+
+org 2000h
+    mov bx, offset B      ; BX = dirección de B (segundo operando, por referencia)
+
+    call MUL              ; Llama a la subrutina de multiplicación
+
+    mov bx, offset RES    ; BX apunta a la dirección de RES
+    mov [bx], ax          ; Guarda el resultado de AX en RES (¡ojo, resultado está en AX!)
+
+    int 0                 ; Termina el programa correctamente
+end
+
+; C)----------------------------------------------------------------------------
+org 1000h
+    A   db 5                    ; Primer operando de la multiplicación (8 bits)
+    B   db 3                    ; Segundo operando de la multiplicación (8 bits)
+    RES dw ?                    ; Variable para almacenar el resultado (16 bits)
+
+org 3000h    
+    MUL:
+        mov cx, 0               ; Inicializa CX en 0 (preparación para usar CL como contador)
+        mov cl, ah              ; CL = valor de B (número de veces que se sumará A)
+        mov byte ptr [bx], 0    ; Inicializa en 0 el contenido apuntado por BX (acumulador en memoria)
+
+        loop:
+            add [bx], al        ; Suma el valor de AL (A) al acumulador en [BX]
+            dec cx              ; Resta 1 al contador de sumas
+        jnz loop                ; Si CX no es cero, repite el bucle de suma
+    ret                         ; Retorna al llamador (resultado queda en [BX])
+
+org 2000h
+    mov al, A                   ; Carga el primer operando (A) en AL
+    mov ah, B                   ; Carga el segundo operando (B) en AH
+    mov bx, offset RES          ; BX apunta a la variable RES (acumulador en memoria)
+    
+    call MUL                    ; Llama a la subrutina MUL para realizar la multiplicación
+
+    int 0                       ; Finaliza la ejecución del programa
+end
+
+; D)----------------------------------------------------------------------------
+org 1000h
+    A   db 5                   ; Primer operando de la multiplicación (8 bits)
+    B   db 3                   ; Segundo operando de la multiplicación (8 bits)
+    RES dw ?                   ; Variable para almacenar el resultado (16 bits)
+
+org 3000h    
+    MUL:
+        pop bx                 ; Recupera BX de la pila (puede ser dirección de retorno o variable temporal)
+        pop cx                 ; CX = cantidad de sumas a realizar (segundo operando, B)
+        pop dx                 ; DX = valor a sumar en cada iteración (primer operando, A)
+        mov ax, 0              ; Inicializa AX en 0 (acumulador del resultado)
+
+        loop:
+            add ax, dx         ; Suma el valor de DX (A) a AX (acumulador)
+            dec cx             ; Decrementa el contador de sumas (CX)
+        jnz loop               ; Si CX no es cero, repite el bucle de suma
+        push bx                ; Restaura BX en la pila (si era necesario)
+    ret                        ; Retorna al llamador, resultado queda en AX
+
+org 2000h
+    mov ax, 0                  ; Inicializa AX en 0 (no es estrictamente necesario aquí)
+    mov al, A                  ; Carga el primer operando (A) en AL
+    push ax                    ; Apila A (primer operando) en la pila
+    mov al, B                  ; Carga el segundo operando (B) en AL
+    push ax                    ; Apila B (segundo operando) en la pila
+
+    call MUL                   ; Llama a la subrutina MUL para realizar la multiplicación
+
+    mov bx, offset RES         ; BX apunta a la variable RES (donde se guarda el resultado)
+    mov [bx], ax               ; Guarda el resultado de AX en RES
+
+    int 0                      ; Finaliza la ejecución del programa
+end
+
+; E)----------------------------------------------------------------------------
+org 1000h
+    A   db 5                   ; Primer operando de la multiplicación (8 bits)
+    B   db 3                   ; Segundo operando de la multiplicación (8 bits)
+    RES dw ?                   ; Variable para almacenar el resultado (16 bits)
+
+org 3000h    
+    MUL:
+        pop dx                 ; Recupera dirección de retorno
+        pop bx                 ; BX = cantidad de sumas a realizar (segundo operando, B)
+        mov cx, [bx]           ; CX = [BX], carga el valor de B como contador de sumas
+        pop bx                 ; BX = valor a sumar en cada iteración (primer operando, A)
+        mov ax, 0              ; Inicializa AX en 0 (acumulador del resultado)
+
+        loop:
+            add al, [bx]         ; Suma el valor de BX (A) a AX (acumulador)
+            dec cx             ; Decrementa el contador de sumas (CX)
+        jnz loop               ; Si CX no es cero, repite el bucle de suma
+        push dx                ; Restaura DX en la pila (si era necesario)
+    ret                        ; Retorna al llamador, resultado queda en AX
+
+org 2000h
+    mov bx, offset A           ; Inicializa BX con la dirección de A
+    push bx                    ; Apila dirección de memoria de A (primer operando) en la pila
+    mov bx, offset B           ; Inicializa BX con la dirección de B
+    push bx                    ; Apila dirección de memoria de B (segundo operando) en la pila
+
+    call MUL                   ; Llama a la subrutina MUL para realizar la multiplicación
+
+    mov bx, offset RES         ; BX apunta a la variable RES (donde se guarda el resultado)
+    mov [bx], ax               ; Guarda el resultado de AX en RES
+
+    int 0                      ; Finaliza la ejecución del programa
+end

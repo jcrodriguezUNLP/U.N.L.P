@@ -1,0 +1,61 @@
+; 3)  Lectura de datos desde el teclado ⭐ 
+; El siguiente programa solicita el ingreso de un número (de un dígito) por teclado, lo almacena en la variable NUM e 
+; inmediatamente lo muestra en la pantalla de comandos, haciendo uso de las interrupciones por software INT 6 e INT 7. 
+; Probar en el simulador. 
+ 
+ORG 1000H                       ; Comienza la sección de datos en la dirección 1000H
+MSJ DB "INGRESE UN NUMERO:"     ; Mensaje a mostrar al usuario
+FIN DB ?                        ; Marca el final del mensaje
+
+ORG 1500H                       ; Otra sección de datos (puede ser para separar variables)
+NUM DB ?                        ; Variable donde se almacenará el número ingresado
+
+ORG 2000H                       ; Comienza la sección de código en la dirección 2000H
+MOV BX, OFFSET MSJ              ; BX apunta al inicio del mensaje
+MOV AL, OFFSET FIN-OFFSET MSJ   ; AL contiene la longitud del mensaje
+INT 7                           ; Muestra el mensaje en pantalla
+MOV BX, OFFSET NUM              ; BX apunta a la variable NUM
+INT 6                           ; Espera ingreso de un dígito y lo almacena en NUM
+
+MOV AL, 1                       ; AL = 1, para mostrar un solo carácter
+INT 7                           ; Muestra el carácter ingresado (NUM) en pantalla
+MOV CL, NUM                     ; Copia el valor ingresado en CL
+INT 0                           ; Finaliza el programa
+END                             ; Fin del código fuente
+ 
+; a)  Con referencia a la interrupción INT 6, ¿qué se almacena en BX?
+; BX contiene la dirección de inicio de la variable NUM.
+
+; b)  En el programa anterior, ¿qué hace la segunda interrupción INT 7?
+; Muestra en pantalla el mensaje "INGRESE UN NUMERO:".
+
+; c)  ¿Qué valor queda almacenado en el registro CL? ¿Es el mismo que el valor numérico ingresado?
+; CL contiene el valor numérico ingresado, que es el mismo que se almacenó en la variable NUM.
+
+; d)  Modificar el programa anterior para que lea dos dígitos en lugar de uno, con dos variables: NUM1 y NUM2
+ORG 1000H
+MSJ DB "INGRESE UN NUMERO:"
+FIN DB ?
+
+ORG 1500H
+NUM1 DB ?
+NUM2 DB ?
+
+ORG 2000H
+MOV BX, OFFSET MSJ
+MOV AL, OFFSET FIN-OFFSET MSJ
+INT 7
+
+MOV BX, OFFSET NUM1      ; Lee el primer dígito
+INT 6
+MOV BX, OFFSET NUM2      ; Lee el segundo dígito
+INT 6
+
+MOV AL, 1
+MOV BX, OFFSET NUM1      ; Muestra el primer dígito
+INT 7
+MOV BX, OFFSET NUM2      ; Muestra el segundo dígito
+INT 7
+
+INT 0
+END

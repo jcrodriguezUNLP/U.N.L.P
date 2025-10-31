@@ -1,0 +1,206 @@
+; 4) Estadísticas de texto  ⭐⭐⭐  
+ 
+; Escribir un programa que permita calcular estadísticas básicas de texto, como su longitud, cantidad de vocales, etc.
+; El programa debe leer un string de teclado.
+; El string se almacena en la memoria principal con la etiqueta CADENA.
+; La lectura termina cuando se lee el carácter “.”
+; Luego, calcular y almacenar en variables distintas: la cantidad de caracteres totales (sin contar “.”), la cantidad de letras, la cantidad de vocales y la cantidad de consonantes.
+; Por último, verificar si la cadena contiene el carácter ‘x’.
+; Para ello, implementar las subrutinas: 
+; ●  📄 ES_LETRA:
+;             recibe un carácter C por valor y retorna 0FFh si C es una letra o 00h de lo contrario.
+;             Para implementar la subrutina, tener en cuenta un carácter es una letra si es una minúscula o mayúscula. 
+; ●  📄 ES_VOCAL:
+;             recibe un carácter C por valor y retorna 0FFh si C es vocal o 00h de lo contrario.
+;             Para implementar la subrutina, utilizar un string auxiliar que contiene las vocales, como vocales db “aeiouAEIOU”, y utilizar la subrutina CONTIENE. 
+; ●  📄 CONTAR_VOC:
+;             Usando la subrutina ES_VOCAL, escribir la subrutina CONTAR_VOC, que recibe una cadena terminada por referencia a través de un registro, su longitud en otro registro y devuelve, en un registro, la cantidad de vocales que tiene esa cadena.  
+;             Ejemplo:
+;                 CONTAR_VOC de ‘contar1#!’ debe retornar 2 
+; ●  📄 ES_CONSONANTE:
+;             recibe un carácter C por valor y retorna 0FFh si C es una letra consonante o 00h de lo contrario.
+;             Para implementar la subrutina, tener en cuenta que un carácter es consonante si es una letra pero no es una vocal. 
+; ●  📄 CONTAR_CONSONANTES:
+;             Idem CONTAR_VOC pero para consonantes. 
+; ●  📄 CONTIENE:
+;             recibe un string A por referencia, y un carácter C por valor, ambos por registro, y debe retornar, también vía registro, el valor 0FFh si el string contiene a C  o 00h en caso contrario.  
+;             Ejemplo:
+;                 CONTIENE de ‘a’ y “Hola” debe  retornar 0FFh y  CONTIENE de ‘b’ y “Hola” debe retornar 00h. 
+A_MINUS equ 'a'
+Z_MINUS equ 'z'
+A_MAYUS equ 'A'
+Z_MAYUS equ 'Z'
+
+org 1000h
+    salto              db 10                                    ; salto de línea
+    mensajeLargo       db "Longitud del string: "               ; mensaje de longitud
+    longitud           db 1                                     ; longitud del string
+    mensajeLetras      db "Cantidad de letras: "                ; mensaje de letras
+    cantLetras         db 1                                     ; cantidad de letras
+    vocales            db "aeiouAEIOU"                          ; string de vocales
+    mensajeVocales     db "Cantidad de vocales: "               ; mensaje de vocales
+    cantVocales        db 1                                     ; cantidad de vocales
+    mensajeConsonantes db "Cantidad de consonantes: "           ; mensaje de consonantes
+    cantConsonantes    db 1                                     ; cantidad de consonantes
+    mensajeContieneX   db "Contiene 'x': "                      ; mensaje de contiene 'x'
+    contieneX          db 1                                     ; contiene 'x' (si/no)
+    mensajeCaracter    db "Ingrese un caracter: "               ; mensaje de ingreso
+    caracter           db 1                                     ; carácter leído
+    si                 db "Si"                                  ; mensaje si
+    no                 db "No"                                  ; mensaje no
+    string             db ?                                     ; string leido
+
+org 3000h
+    IMPRIMIR_SALTO:                                             ; Subrutina para imprimir un salto de línea (usada para separar visualmente en pantalla)
+        mov bx, offset salto                                    ; BX apunta al carácter LF (10)
+        mov al, 1                                               ; AL = longitud (1 carácter)
+        int 7                                                   ; Imprime el salto de línea
+    ret
+
+    LEER_STRING:
+        ; recibe:
+        ;   direccion de retorno  7FFAh ---> h
+        ;   string                7FFCh ---> h
+        ;   mensaje caracter      7FFEh ---> h
+        ; retorna:
+        ;   string leído en la dirección pasada por parámetro
+        mov ax, 0                                               ; para q no tire error
+
+        leerCaracter:
+            mov ax, offset caracter - offset mensajeCaracter    ; AX = longitud del mensaje
+            mov bx, sp                                          ; bx = registro sp
+            add bx, 4                                           ; bx = dirección del mensaje de ingreso
+            mov bx, [bx]                                        ; bx = mensaje de ingreso
+            int 7
+
+            mov bx, sp                                          ; bx = registro sp
+            add bx, 2                                           ; bx = dirección del string
+            mov bx, [bx]                                        ; bx = dirección del string
+            int 6                                               ; lee un caracter de teclado en [BX]
+
+            mov al, 1
+            int 7
+
+            push bx                                             ; guarda la dirección del string
+            
+            call IMPRIMIR_SALTO
+            
+            pop bx                                              ; recupera la dirección del string
+
+            cmp byte ptr [bx], '.'                              ; compara el caracter leído con '.'
+            jz finLeerCaracter                                  ; si no es '.', continuar leyendo
+
+            mov bx, sp                                          ; bx = registro sp
+            add bx, 2                                           ; bx = dirección del string
+            inc byte ptr [bx]                                   ; avanza la dirección del string
+        jmp leerCaracter                                        ; si no es cero, leer otro caracter
+
+        finLeerCaracter:
+    ret
+
+    ES_LETRA:
+        ; recibe:
+        ;   carácter C por valor en AL
+        ; retorna:
+        ;   0FFh en AL si C es letra, 00h en AL de lo contrario
+
+        ; codigo ascii de 'A' a 'Z' es 41h a 5Ah
+        ; codigo ascii de 'a' a 'z' es 61h a 7Ah
+
+        ; verifico minusculas
+        cmp al, Z_MINUS+1                                       ; compara C con el siguiente de 'z'
+        jns noEsLetra                                           ; si 'z' < C no es letra
+
+        cmp al, A_MINUS                                         ; compara C con 'a'
+        jns esLetra                                             ; si 'a' <= C es letra
+        
+        ; verifico mayusculas
+        cmp al, Z_MAYUS+1                                       ; compara C con el siguiente de 'Z'
+        jns noEsLetra                                           ; si 'Z' < C no es letra
+
+        cmp al, A_MAYUS                                         ; compara C con 'A'
+        jns esLetra                                             ; si 'A' <= C es letra
+
+        esLetra:
+            mov al, 0FFh                                        ; retorna 0FFh en AL
+        jmp finEsLetra       
+        
+        noEsLetra:
+            mov al, 0                                           ; retorna 00h en AL
+        
+        finEsLetra:
+    ret
+
+    ES_VOCAL:
+        ; recibe:
+        ;   carácter C por valor en AL
+        ; retorna:
+        ;   0FFh en AL si C es vocal, 00h en AL de lo contrario
+
+        mov bx, offset vocales                                  ; BX = dirección del string de vocales
+
+        verificarVocal:
+            cmp al, [bx]                                        ; compara C con el carácter actual
+            jz esVocal                                          ; si son iguales, es vocal
+
+            inc bx                                              ; avanza al siguiente carácter del string de vocales
+            cmp byte ptr [bx], 'U'                              ; verifica si llegó al final de las vocales
+            jz noEsVocal                                        ; si llegó al final, no es vocal
+        jmp verificarVocal                                  ; repetir el proceso
+
+        esVocal:
+            mov al, 0FFh                                        ; retorna 0FFh en AL
+            jmp finEsVocal
+
+        noEsVocal:
+            mov al, 0                                           ; retorna 00h en AL
+
+        finEsVocal:
+    ret
+
+org 2000h
+    mov bx, offset mensajeCaracter                              ; BX = dirección del mensaje de ingreso
+    push bx
+    mov bx, offset string                                       ; BX = dirección del string
+    push bx
+    ; recibe:
+    ;   direccion de retorno  7FFAh ---> h
+    ;   string                7FFCh ---> h
+    ;   mensaje caracter      7FFEh ---> h
+    ; retorna:
+    ;   string leído en la dirección pasada por parámetro
+    call LEER_STRING                                            ; Lee el string de teclado
+
+    mov cx, 0                                                   ; CX = cantidad de caracteres procesados
+
+    recorrerString:
+        mov bx, offset string                                   ; BX = dirección del string
+        add bx, cx                                              ; BX = dirección del carácter actual
+        cmp [bx], '.'                                           ; compara el carácter actual con '.'
+        jz finRecorrerString                                    ; si es '.', termina el recorrido
+
+        mov ax, [bx]                                            ; AX = carácter actual
+        ; recibe:
+        ;   carácter C por valor en AX
+        ; retorna:
+        ;   0FFh en DX si C es letra, 00h en DX de lo contrario
+        call ES_LETRA
+
+        cmp dx, 0FFh                                            ; verifica si es letra
+        jnz avanzarCaracter                                     ; si no es letra, salta a avanzar
+
+        ; recibe:
+        ;   carácter C por valor en AX
+        ; retorna:
+        ;   0FFh en DX si C es vocal, 00h en DX de lo contrario
+        call ES_VOCAL
+
+        
+
+        avanzarCaracter:
+            inc cx                                                 ; incrementa el contador de longitud total
+    jmp recorrerString                                      ; continúa recorriendo el string
+
+    finRecorrerString:
+        int 0                                                     ; llamada a la interrupción de fin de codigo
+end

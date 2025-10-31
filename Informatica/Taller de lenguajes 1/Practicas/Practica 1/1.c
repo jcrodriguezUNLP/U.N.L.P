@@ -1,47 +1,67 @@
+// Al  compilar  un  programa  en  C,  el  compilador  puede  notificar  errores  y  avisos  (warnings).
+
+// ¿Qué diferencia  existe  entre  ellos?
+//    - ERRORES:
+//        Son problemas críticos que impiden la compilación
+//        Ejemplos: sintaxis incorrecta, variables no declaradas, funciones inexistentes, etc.
+//    - WARNINGS:
+//        Son avisos sobre posibles problemas o malas prácticas.
+//        Ejemplos: variables no usadas, conversiones implícitas, etc.
+
+// ¿puede  un  programa  compilar  con  errores? ¿y  con  warnings? 
+//    El código NO puede compilar con errores.
+//    El código SÍ puede compilar con warnings.
+
+// Compile los siguientes programas  e identifique errores y warnings.
+
+// Luego, corríjalos para que el código compile correctamente.
+
 #include <stdio.h>
-
-int main() {
-    char opcion;
-
-    do {
-        // Imprimir el menú de opciones
-        printf( "\nMenú de Opciones:" ) ;
-        printf( "\na. Decir Hola" ) ;
-        printf( "\nb. Mostrar un número" ) ;
-        printf( "\n0. Salir" ) ;
-        printf( "\nSeleccione una opción: " ) ;
-        scanf( "%d", &opcion ) ;
-
-        // Manejar las opciones con un switch
-        switch(opcion) {
-            case( "a" ):
-                printf( "\nHola! Espero que tengas un buen día." ) ;
-                break;
-            case( "b" ):
-                printf( "\nEl número seleccionado es 42." ) ;
-                break;
-            case( 0 ):
-                printf( "\nSaliendo del programa. ¡Hasta luego!" ) ;
-                break;
-            default:
-                printf( "\nOpción inválida. Por favor, intente de nuevo." ) ;
-                break;
-        }
-    } while(opcion != 0 ) ; // El programa continúa hasta que el usuario seleccione la opción 3
-
-    return 0;
-}
+int main(){ 
     // a
-    double pi= 3.14;
-    int y= 5
-    printf( "pi= %d\n", pi ) ;
-    
-    
-    // b
-    int x = 10 ;
-    if( x = 5 ){
-        printf( "\nx = 5" ) ;
-    }
+        // double pi = 3.14 ;
+        // int     y = 5
 
-    return 0;
+        // printf( "pi = %d\n" , pi ) ;
+
+        // -----------------------------------------------------------------------------------//
+        // ERRORES:
+        //   - Falta punto y coma (;) después de "int y = 5"
+        //   - Especificador incorrecto: usa %d para double (debería ser %f)
+        //      Esto produce un resultado incorrecto al imprimir el valor
+        // WARNINGS:
+        //   - Variable 'y' declarada pero no utilizada
+        //   - Falta de 'return 0;' en main puede generar un warning en algunos compiladores
+        // ------------------------------------------------------------------------------------//
+
+    // b
+        // int x = 10 ;
+
+        // if( x = 5 ) 
+        //     printf( "x = 5\n" ) ;
+        
+        // return( 0 ) ;
+        
+        // -------------------------------------------------------------------------------//
+        // ERRORES:
+        //   - Asignación (=) en lugar de comparación (==) en la condición if
+        // WARNINGS:
+        //   - Warning sobre asignación en condición if (sugiere usar == en lugar de =) 
+        // -------------------------------------------------------------------------------//
+    
+    // a corregido
+        double pi = 3.14 ;
+
+        printf( "pi = %f\n" , pi ) ;
+
+        return( 0 ) ;
+
+    // b corregido
+        // int x = 10 ;
+
+        // if( x == 5 ){
+        //     printf( "x = 5\n" ) ;
+        // }
+        
+        // return( 0 ) ;
 }

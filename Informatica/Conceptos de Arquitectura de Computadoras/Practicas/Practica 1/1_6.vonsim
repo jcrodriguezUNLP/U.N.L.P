@@ -1,0 +1,83 @@
+; 6) Lectura e impresión de strings ⭐⭐  
+;   a)  Escribir un programa que lea carácteres hasta que se ingrese el carácter “.” (punto).
+;       Contar la cantidad de carácteres ingresados y guardarla en la variable CANT. 
+;   b)  Modificar a) para contar solamente la cantidad de letras “a” que se leen 
+;   c)  Modificar a) para almacenar los carácteres leídos en memoria como un string (sin incluir el “.”). 
+;   d)  Modificar c) para mostrar en pantalla el string leído luego de leerlo.
+
+; a)-----------------------------------------------------------------------------------------------------------------
+ORG 1000h                                ; Sección de datos
+    CANT    db 0                         ; Variable para contar la cantidad de caracteres leídos
+
+ORG 2000h                                ; Sección de código
+    mov bx, offset CANT                  ; BX apunta al inicio del mensaje
+    inc bx                               ; Avanza al siguiente byte para evitar sobrescribir CANT
+
+    leer:
+        int 6                                ; Llama a la interrupción para leer un carácter
+        cmp byte ptr [bx], '.'               ; Compara el carácter leído con '.'
+        jz fin                               ; Si es '.', salta a fin_leer
+        
+        inc CANT                             ; Incrementa el contador de caracteres
+        jmp leer                             ; Repite el proceso
+    
+    fin:
+        add CANT, '0'                        ; Convierte el valor numérico a carácter ASCII
+        mov bx, offset CANT                  ; BX apunta a la variable CANT
+        mov al, 1                            ; AL = 1, para imprimir un carácter
+        int 7                                ; Llama a la interrupción para mostrar el carácter en AL
+    int 0                                ; Termina el programa
+END                                      ; Fin del código fuente
+
+; b)-----------------------------------------------------------------------------------------------------------------
+ORG 1000h                                ; Sección de datos
+    CANT_A  db 0                         ; Variable para contar la cantidad de caracteres leídos
+
+ORG 2000h                                ; Sección de código
+    mov bx, offset CANT_A              ; BX apunta al inicio del mensaje
+    inc bx
+
+    leer:
+        int 6                                ; Llama a la interrupción para leer un carácter
+        cmp byte ptr [bx], 'a'               ; Compara el carácter leído con 'a'
+        jnz seguir
+        
+        inc CANT_A                           ; Incrementa el contador de caracteres
+
+    seguir:
+        cmp byte ptr [bx], '.'               ; Compara el carácter leído con '.'
+        jz fin                               ; Si es '.', salta a fin_leer
+        
+        jmp leer                             ; Repite el proceso
+
+    fin:
+        add CANT_A, '0'                      ; Convierte el valor numérico a carácter ASCII
+        mov bx, offset CANT_A                ; BX apunta a la variable CANT_A
+        mov al, 1                            ; AL = 1, para imprimir un carácter
+        int 7                                ; Llama a la interrupción para mostrar el carácter en AL
+    int 0                                ; Termina el programa
+END                                      ; Fin del código fuente
+
+; c)d)-----------------------------------------------------------------------------------------------------------------
+ORG 1000h                                ; Sección de datos
+    CANT    db 0                         ; Variable para contar la cantidad de caracteres leídos
+    MENSAJE db ?                         ; Espacio para almacenar el string leído (máximo 100 caracteres)
+
+ORG 2000h                                ; Sección de código
+    mov bx, offset MENSAJE               ; BX apunta al inicio del mensaje
+
+    leer:
+        int 6                                ; Llama a la interrupción para leer un carácter
+        cmp byte ptr [bx], '.'               ; Compara el carácter leído con '.'
+        jz imprimir                          ; Si es '.', salta a fin_leer
+        
+        inc bx                               ; Avanza al siguiente byte de MENSAJE
+        inc CANT                             ; Incrementa el contador de caracteres
+        jmp leer                             ; Repite el proceso
+
+    imprimir:
+        mov bx, offset MENSAJE               ; BX apunta al inicio del mensaje
+        mov al, CANT                         ; AL contiene la cantidad de caracteres a mostrar
+        int 7                                ; Llama a la interrupción para mostrar el mensaje
+    int 0                                    ; Termina el programa
+END                                          ; Fin del código fuente

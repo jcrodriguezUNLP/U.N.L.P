@@ -1,0 +1,56 @@
+; 5) Mostrar caracteres individuales  ⭐ 
+;   a) Escribir un programa que muestre en pantalla las letras mayúsculas (“A” a la “Z”).  
+;     Pista:  Podés buscar los códigos de la “A” y la “Z” en una tabla de códigos ascii.
+;     No utilizar un vector.
+;     Usar una sola variable de tipo db, e incrementar el valor de esa variable antes de mostrar en pantalla.
+;   b) ¿Qué deberías modificar en a) para mostrar solamente los dígitos (“0” al “9”)?
+;     Cambiar las constantes LETRA_INICIO y LETRA_FIN por los códigos ASCII de '0' y '9'.
+;   c) ¿Y para mostrar todos los carácteres disponibles en el código ASCII? Probar en el simulador.
+;     Cambiar las constantes LETRA_INICIO y LETRA_FIN por 0 y 127 respectivamente.
+;   d) Modificar el ejercicio b) que muestra los dígitos, para que cada dígito se muestre en una línea separada.
+;     Pista: El código ASCII del carácter de nueva línea es el 10
+;     comúnmente llamado “\n” o LF (“line feed” por sus siglas en inglés y porque se usaba en impresoras donde había que “alimentar” una nueva línea).
+;     Entonces, se puede imprimir el string “{c}\n”, que tiene longitud 2, donde {c} es el carácter a imprimir y \n es el carácter de nueva línea.
+
+CARACTER_INICIO equ 'A'                  ; Constante: código ASCII de 'A' (65)
+CARACTER_FIN    equ 'Z'                  ; Constante: código ASCII de 'Z' (90)
+
+ORG 1000h                                ; Sección de datos
+    caracter db ?                        ; Variable para almacenar el código ASCII de la letra actual
+
+ORG 2000h                                ; Sección de código
+    mov caracter, CARACTER_INICIO        ; Inicializa la variable 'caracter' con el código de 'A'
+    mov bx, offset caracter              ; BX apunta a la dirección de la variable 'caracter'
+
+    mov al , 1                           ; avisa q imprime un caracter (IMPORTANTE)
+
+    loop:
+        int 7                            ; Muestra el carácter cuyo código está en [BX] ('A' la primera vez)
+        inc caracter                     ; Incrementa el valor de 'caracter' (pasa a la siguiente letra)
+        cmp caracter, (CARACTER_FIN + 1) ; Compara si 'caracter' llegó a 'Z'+1 (91)
+        jnz loop                         ; Si no llegó, repite el bucle para mostrar la siguiente letra
+    int 0                                ; Fin del programa
+END                                      ; Fin del código fuente
+
+; con alto de linea
+CARACTER_INICIO equ 'A'                  ; Constante: código ASCII de 'A' (65)
+CARACTER_FIN    equ 'Z'                  ; Constante: código ASCII de 'Z' (90)
+
+ORG 1000h                                ; Sección de datos
+    caracter db ?                        ; Variable para almacenar el código ASCII de la letra actual
+    salto db 10                          ; Variable para almacenar el código ASCII del salto de línea LF line feed
+
+ORG 2000h                                ; Sección de código
+    mov caracter, CARACTER_INICIO        ; Inicializa la variable 'caracter' con el código de 'A'
+    mov bx, offset caracter              ; BX apunta a la dirección de la variable 'caracter'
+
+    mov al , 2                           ; avisa q imprime un caracter (IMPORTANTE)
+
+    loop:
+        int 7                            ; Muestra el carácter cuyo código está en [BX] ('A' la primera vez)
+        inc caracter                     ; Incrementa el valor de 'caracter' (pasa a la siguiente letra)
+        cmp caracter, (CARACTER_FIN + 1) ; Compara si 'caracter' llegó a 'Z'+1 (91)
+        jnz loop                         ; Si no llegó, repite el bucle para mostrar la siguiente letra
+    int 0                                ; Fin del programa
+END                                      ; Fin del código fuente
+

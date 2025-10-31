@@ -1,0 +1,199 @@
+; 2) Ahorcado secuencial ⭐⭐
+; Juego de ahorcado donde se debe adivinar la palabra letra por letra y en el orden correcto.
+; Ejemplo: si la palabra es “alma”, se debe ingresar primero “a”, luego “l”, luego “m” y finalmente “a”.
+;
+; El programa tiene dos fases principales:
+; ● Fase 1: Una persona ingresa la palabra a adivinar (finaliza con '.').
+;           Se muestra el mensaje “Ingresá la palabra a adivinar: ”, se lee la palabra y luego se muestra “Comenzá a adivinar!”.
+; ● Fase 2: La otra persona intenta adivinar la palabra letra por letra y en orden.
+;           Si acierta la letra, se muestra en pantalla y se avanza al siguiente carácter.
+;           Si no acierta, no se muestra nada y debe seguir intentando la misma letra.
+;           Si adivina toda la palabra, se muestra “Ganaste!”.
+;           Hay un número limitado de intentos. Si se terminan los intentos sin adivinar la palabra, se muestra “Perdiste, el string era S”, donde S es la palabra a adivinar.
+;
+; Estructura general del código:
+; - Variables y mensajes en el segmento de datos (org 1000h)
+; - Subrutinas en el segmento de código (org 3000h)
+; - Lógica principal en org 2000h (flujo principal del programa)
+
+org 1000h
+    salto                   db  10                                                  ; Carácter de salto de línea (ASCII 10, para imprimir saltos de línea)
+    mensajeComenzar         db "Comenzá a adivinar!"                                ; Mensaje que indica el inicio de la fase de adivinanza
+    mensajeConocido         db "Palabra conocida: "                                 ; Mensaje previo a mostrar el progreso de la palabra (antes de mostrar los guiones)
+    mensajeGuion            db " _"                                                 ; Guion que representa letras no adivinadas (se imprime por cada letra no adivinada)
+    mensajeCaracter         db "Ingrese una letra: "                                ; Mensaje para solicitar una letra al jugador
+    caracter                db  1                                                   ; Variable para almacenar el último carácter ingresado por el usuario
+    mensajeIntentosRestantes db "Intentos restantes: "                              ; Mensaje para mostrar la cantidad de intentos restantes
+    intentosRestantes       db  5                                                   ; Contador de intentos restantes para adivinar (se decrementa en cada error)
+    mensajeGanaste          db "Ganaste, el string era: "                           ; Mensaje de victoria al adivinar la palabra completa
+    mensajePerdiste         db "Perdiste, el string era: "                          ; Mensaje de derrota, muestra la palabra correcta al perder
+    mensajeIngresar         db "Ingresá la palabra a adivinar: "                    ; Mensaje para solicitar la palabra a adivinar (fase 1)
+    longitudPalabra         db  0                                                   ; Variable para almacenar la longitud de la palabra ingresada
+    palabra                 db  ?                                                   ; Buffer para la palabra a adivinar (máx. 100 caracteres)
+
+org 3000h
+    IMPRIMIR_SALTO:                                                                 ; Subrutina para imprimir un salto de línea (usada para separar visualmente en pantalla)
+        mov bx, offset salto                                                        ; BX apunta al carácter LF (10)
+        mov al, 1                                                                   ; AL = longitud (1 carácter)
+        int 7                                                                       ; Imprime el salto de línea
+    ret
+
+    INT_A_ASCII:
+        ; loop para sacar el ultimo digito del numero
+        loop:
+            ; divide por 10
+            
+
+    LEER_STRING:                                                                    ; Subrutina para leer un string hasta que se ingrese '.'
+        mov cx, 0                                                                   ; CX = contador de longitud de la palabra
+
+    leerCaracter:
+        int 6                                                                       ; Lee un carácter del teclado y lo almacena en [bx]
+        cmp byte ptr [bx], '.'                                                      ; ¿Es el carácter '.'? (fin de la palabra)
+        jz fin_leer                                                                 ; Si es '.', termina la lectura
+        inc bx                                                                      ; Avanza el puntero en el buffer para el próximo carácter
+        inc cx                                                                      ; Incrementa la longitud de la palabra
+        jmp leerCaracter                                                            ; Repite hasta encontrar '.'
+
+    fin_leer:
+        mov bx, offset longitudPalabra                                              ; BX apunta a la variable de longitud
+        mov [bx], cl                                                                ; Guarda la longitud de la palabra ingresada
+    ret
+
+    ADIVINAR_PALABRA:                                                               ; Subrutina principal de la fase de adivinanza (Fase 2)
+        mov cx, 0                                                                   ; CX no se usa, pero se inicializa por claridad
+        mov dx, 0                                                                   ; DX = contador de aciertos (letras adivinadas en orden)
+
+        adivinarCaracter:
+            ; --- Mostrar el mensaje de progreso de la palabra ---
+            mov bx, offset mensajeConocido                                          ; Imprime "Palabra conocida: " antes de mostrar los guiones
+            mov ax, offset mensajeGuion - offset mensajeConocido                    ; AX = longitud del mensaje
+            int 7                                                                   ; Imprime el mensaje de progreso
+
+            mov bx, sp                                                              ; BX apunta a la pila de parámetros
+            add bx, 4                                                               ; BX apunta a la longitud de la palabra
+            mov bx, [bx]                                                            ; BX = dirección de la variable longitudPalabra
+            mov ax, dx                                                              ; imprime la palabra descubierta hasta ahora
+            int 7                                                                   ; Imprime el mensaje
+
+            ; --- Imprimir guiones por cada letra no adivinada ---
+            mov bx, sp                                                              ; BX apunta a la pila de parámetros
+            add bx, 2                                                               ; BX apunta a la longitud de la palabra
+            mov bx, [bx]                                                            ; BX = dirección de la variable longitudPalabra
+            mov cl, [bx]                                                            ; CL = longitud de la palabra
+            sub cx, dx                                                              ; CX = letras no adivinadas
+        
+            guiones:
+                mov bx, offset mensajeGuion                                         ; Imprime un guion por cada letra no adivinada
+                mov al, 2                                                           ; AL = longitud del guion
+                int 7                                                               ; Imprime el guion
+                dec cx                                                              ; Decrementa CX (letras no adivinadas)
+            jnz guiones                                                             ; Repite hasta imprimir todos los guiones
+
+            call IMPRIMIR_SALTO                                                     ; Imprime salto de línea
+
+            ; --- Solicitar al usuario que ingrese una letra ---
+            mov bx, offset mensajeCaracter                                          ; Imprime el mensaje para ingresar letra
+            mov ax, offset caracter - offset mensajeCaracter                        ; AX = longitud del mensaje
+            int 7                                                                   ; Imprime el mensaje
+
+            mov bx, offset caracter                                                 ; BX apunta a la variable donde se guarda la letra
+            int 6                                                                   ; Lee un carácter del teclado
+
+            mov ax, 1                                                               ; Código de función para imprimir carácter
+            int 7                                                                   ; Imprime el carácter ingresado
+            call IMPRIMIR_SALTO                                                     ; Imprime salto de línea
+
+            ; --- Verifica si la letra ingresada es correcta ---
+            mov bx, offset caracter                                                 ; BX apunta a la variable donde se guarda la letra
+            mov al, [bx]                                                            ; AL = carácter ingresado
+
+            mov bx, sp                                                              ; BX apunta a la pila
+            add bx, 4                                                               ; BX apunta a la palabra
+            mov bx, [bx]                                                            ; BX = dirección de la palabra
+            add bx, dx                                                              ; BX apunta a la posición de la letra a adivinar
+            mov cl, [bx]                                                            ; CL = letra correcta a adivinar
+
+            cmp ax, cx                                                              ; ¿El carácter ingresado es el correcto?
+            jnz continuar                                                           ; Si no coincide, no avanza, sigue intentando la misma letra
+
+            ; acierto
+            inc dx                                                                  ; Incrementa el contador de aciertos
+            mov bx, sp                                                              ; BX apunta a la pila
+            add bx, 2                                                               ; BX apunta a la longitud de la palabra
+            mov bx, [bx]                                                            ; BX = dirección de la variable longitudPalabra
+            mov cl, [bx]                                                            ; CL = longitud de la palabra
+            cmp dx, cx                                                              ; ¿Cantidad de aciertos = longitud de la palabra?
+            jz ganaste                                                              ; Si sí, salta a mensaje de victoria
+
+            continuar:
+                mov bx, sp                                                          ; BX apunta a la pila
+                add bx, 6                                                           ; BX apunta a la cantidad de intentos restantes
+                mov bx, [bx]                                                        ; BX = dirección de la variable intentosRestantes
+                dec byte ptr [bx]                                                   ; Decrementa la cantidad de intentos restantes
+
+            ; --- Mostrar la cantidad de intentos restantes ---
+            mov bx, offset mensajeIntentosRestantes                                 ; Imprime el mensaje "Intentos restantes: "
+            mov ax, offset intentosRestantes - offset mensajeIntentosRestantes      ; AX = longitud del mensaje
+            int 7                                                                   ; Imprime el mensaje
+
+            mov bx, sp                                                              ; BX apunta a la pila
+            add bx, 6                                                               ; BX apunta a la cantidad de intentos restantes
+            mov bx, [bx]                                                            ; BX = dirección de la variable intentosRestantes
+            add byte ptr [bx], '0'                                                  ; Convierte el valor numérico a ASCII para imprimirlo
+            mov ax, 1                                                               ; AL = longitud (1 carácter)
+            int 7                                                                   ; Imprime la cantidad de intentos restantes (como número ASCII)
+            sub byte ptr [bx], '0'                                                  ; Convierte de vuelta a valor numérico
+            call IMPRIMIR_SALTO                                                     ; Imprime salto de línea
+        jnz adivinarCaracter                                                        ; Si quedan intentos, repite el proceso
+
+        mov bx, offset mensajePerdiste                                              ; Imprime el mensaje de derrota
+        mov al, offset mensajeIngresar - offset mensajePerdiste                     ; AL = longitud del mensaje
+        int 7                                                                       ; Imprime el mensaje
+
+        jmp fin
+
+        ganaste:
+            mov bx, offset mensajeGanaste                                           ; Imprime el mensaje de victoria
+            mov al, offset mensajePerdiste - offset mensajeGanaste                  ; AL = longitud del mensaje
+            int 7                                                                   ; Imprime el mensaje
+        
+        fin:
+            mov bx, sp                                                              ; BX apunta a la pila
+            add bx, 2                                                               ; BX apunta a la longitud de la palabra
+            mov bx, [bx]                                                            ; BX = dirección de la variable longitudPalabra
+            mov al, [bx]                                                            ; AL = longitud de la palabra
+            mov bx, sp                                                              ; BX apunta a la pila
+            add bx, 4                                                               ; BX apunta a la palabra
+            mov bx, [bx]                                                            ; BX = dirección de la palabra
+            int 7                                                                   ; Imprime la palabra
+            call IMPRIMIR_SALTO                                                     ; Imprime salto de línea
+    ret
+
+org 2000h
+
+    ; --- Fase 1: Ingreso de la palabra a adivinar ---
+    mov bx, offset mensajeIngresar                                                  ; Imprime el mensaje de ingreso de palabra (fase 1)
+    mov al, offset longitudPalabra - offset mensajeIngresar                         ; AL = longitud del mensaje
+    int 7                                                                           ; Imprime el mensaje
+    call IMPRIMIR_SALTO                                                             ; Imprime salto de línea
+
+    mov bx, offset palabra                                                          ; BX apunta al buffer donde se guardará la palabra
+    call LEER_STRING                                                                ; Lee la palabra a adivinar hasta '.'
+
+    ; --- Fase 2: Proceso de adivinanza ---
+    mov bx, offset mensajeComenzar                                                  ; Imprime el mensaje de inicio de adivinanza
+    mov al, offset mensajeConocido - offset mensajeComenzar                         ; AL = longitud del mensaje
+    int 7                                                                           ; Imprime el mensaje
+    call IMPRIMIR_SALTO                                                             ; Imprime salto de línea
+
+    mov ax, offset intentosRestantes                                                ; AX = dirección de la variable de intentos
+    mov bx, offset palabra                                                          ; BX = dirección del buffer de la palabra
+    mov dx, offset longitudPalabra                                                  ; DX = dirección de la variable de longitud
+    push ax                                                                         ; Apila dirección de intentos
+    push bx                                                                         ; Apila dirección de palabra
+    push dx                                                                         ; Apila dirección de longitud
+    call ADIVINAR_PALABRA                                                           ; Llama a la subrutina principal de adivinanza
+
+    int 0                                                                           ; Finaliza el programa
+end

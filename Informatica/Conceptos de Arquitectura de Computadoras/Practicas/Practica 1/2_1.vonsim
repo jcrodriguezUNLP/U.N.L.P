@@ -1,0 +1,100 @@
+; Parte 2: Pila, subrutinas y dirección de retorno. 
+ 
+; 1) Repaso de Conceptos de Pila y Subrutinas 
+ 
+; A) Uso de la pila ⭐
+; Si el registro SP vale 8000h al comenzar  el programa, indicar el valor del registro SP luego de ejecutar cada una de las instrucciones de la tabla, en el orden en que aparecen
+; Indicar, de la misma forma, los valores de los registros AX y BX. 
+   
+;----------------------------------------------------------
+; Instrucción | Valor del registro SP |   AX    |   BX    |
+;-------------+-----------------------+---------+---------|
+; mov ax,5    |         8000h         |    5    |    ?    | 
+;-------------+-----------------------+---------+---------|
+; mov bx,3    |         8000h         |    5    |    3    | 
+;-------------+-----------------------+---------+---------|
+; push ax     |         7FFEh         |    5    |    3    |
+;-------------+-----------------------+---------+---------|
+; push ax     |         7FFCh         |    5    |    3    |
+;-------------+-----------------------+---------+---------|
+; push bx     |         7FFAh         |    5    |    3    |
+;-------------+-----------------------+---------+---------|
+; pop bx      |         7FFCh         |    5    |    3    |
+;-------------+-----------------------+---------+---------|
+; pop bx      |         7FFEh         |    5    |    5    |
+;-------------+-----------------------+---------+---------|
+; pop ax      |         8000h         |    5    |    5    |
+;----------------------------------------------------------
+ 
+; B) Llamadas a subrutinas y la pila ⭐
+; Si el registro SP vale 8000h al comenzar  el programa, indicar el valor del 
+; registro SP luego de ejecutar cada instrucción.
+; Considerar que el programa comienza a ejecutarse con el IP en la 
+; dirección 2000h, es decir que la primera instrucción que se ejecuta es la de la línea 5 (push ax). 
+; Nota: Las sentencias ORG y END no son instrucciones sino indicaciones al compilador, por lo tanto no se ejecutan.  
+;---------------------------------------------------------------
+; Dirección    | Instrucción           | Valor del registro SP |
+;--------------+-----------------------+-----------------------|
+;    ------    | org 3000h             |         -----         |
+;--------------+-----------------------+-----------------------|
+;    3000h     | rutina: mov bx,3      |         7FFCh         |
+;--------------+-----------------------+-----------------------|
+;    3004h     | ret                   |         7FFEh         |
+;--------------+-----------------------+-----------------------|
+;    ------    | org 2000h             |         -----         |
+;--------------+-----------------------+-----------------------|
+;    2000h     | push ax               |         7FFEh         |
+;--------------+-----------------------+-----------------------|
+;    2001h     | call rutina           |         7FFCh         |
+;--------------+-----------------------+-----------------------|
+;    2004h     | pop bx                |         8000h         |
+;--------------+-----------------------+-----------------------|
+;    2005h     | hlt                   |         8000h         |
+;--------------+-----------------------+-----------------------|
+;    ------    | end                   |         -----         |
+;---------------------------------------------------------------
+ 
+; C) Llamadas a subrutinas y dirección de retorno ⭐ 
+ 
+; Si el registro SP vale 8000h al comenzar  el programa, indicar el valor de SP y el contenido de la pila luego de ejecutar cada instrucción.
+; Si el contenido es desconocido/basura, indicarlo con el símbolo ?.
+; Considerar que el programa comienza a ejecutarse con el IP en la dirección 2000h, es decir que la primera instrucción que se ejecuta es la de la línea 5 (call rut).
+; Se provee la ubicación de las instrucciones en memoria, para poder determinar la dirección de retorno de la rutina. 
+; Además, explicar detalladamente: 
+; a)  Las acciones que tienen lugar al ejecutarse la instrucción call rut 
+; b)  Las acciones que tienen lugar al ejecutarse la instrucción ret 
+ 
+; org 3000h 
+;   rut:  mov bx,3   ; Dirección 3000h 
+;   ret              ; Dirección 3004h 
+ 
+ 
+ 
+; org 2000h 
+;   call rut   ; Dirección 2000h 
+;   add cx,5   ; Dirección 2003h 
+;   call rut   ; Dirección 2007h 
+;   int 0      ; Dirección 200Ah 
+; end
+
+;----------------------------------------------------------------
+; Instrucción   | Valor del registro SP | contenido de la pila  |
+;---------------+-----------------------|-----------------------|
+; org 3000h     |         -----         |                       |
+;---------------+-----------------------|-----------------------|
+; rut: mov bx,3 |         7FFEh         |         2002h         |
+;---------------+-----------------------|-----------------------|
+; ret           |         8000h         |           ?           |
+;---------------+-----------------------|-----------------------|
+; org 2000h     |         -----         |                       |
+;---------------+-----------------------|-----------------------|
+; call rut      |         7FFEh         |         2002h         |
+;---------------+-----------------------|-----------------------|
+; add cx, 5     |         8000h         |           ?           |
+;---------------+-----------------------|-----------------------|
+; call rut      |         7FFEh         |         2006h         |
+;---------------+-----------------------|-----------------------|
+; hlt           |         8000h         |           ?           |
+;---------------+-----------------------|-----------------------|
+; end           |         -----         |                       |
+;----------------------------------------------------------------

@@ -96,6 +96,8 @@ public class Main {
             System.out.println( entrenador.toString() ) ;
         //
 
-            
+        // jugadores
+            Jugador[] jugadores = new Jugador[3] ;
+        //
     }
 }

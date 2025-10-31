@@ -1,0 +1,205 @@
+;3) Estadísticas de notas ⭐⭐⭐ 
+ 
+; Escribir un programa que permite calcular estadísticas de las notas de los exámenes de una materia.
+; Las notas son valores entre 0 y 9, donde 4 es el valor mínimo para aprobar.
+; El programa debe leer de teclado las notas y almacenarlas en un vector, convertidas a números; la lectura termina con el carácter “.”.
+; Luego, el programa debe informar el promedio de las notas y almacenar en memoria el porcentaje de exámenes aprobados.  
+
+;  Para desarrollar el programa, implementar las subrutinas: 
+; ●  📄 CALC_APROBADOS: Recibe un vector de números y su longitud, y retorna la cantidad de números iguales o mayores a 4. 
+; ●  📄 DIV: calcula el resultado de la división entre 2 números positivos A y B de 16 bits.
+;             Pasaje de parámetros por valor y por registro.
+;             Retorna el cociente y el resto en dos registros respectivamente. 
+; ●  📄 MUL: calcula el resultado de la multiplicación entre 2 números positivos A y B de 16 bits.
+;             Pasaje de parámetros por valor y por registro. 
+;             Retorna el resultado en un registro. 
+; ●  📄 PORCENTAJE: Recibe la cantidad de notas aprobadas, y la cantidad total de notas, y retorna el porcentaje de aprobadas.  
+;                    Pista: Como VonSim no tiene soporte para números en punto flotante, el porcentaje debe calcularse con enteros utilizando las subrutinas DIV y MUL.
+;                    Es decir, si se leen 3 notas y 2 son aprobadas, el porcentaje de aprobados sería 66%, o sea (2 * 100)/3.
+;                    Como son números enteros, es importante primero hacer la multiplicación y luego la división (¿por qué?).
+
+org 1000h                                            ; --- Sección de datos ---
+    salto db 10                          ; Variable para almacenar el código ASCII del salto de línea LF line feed
+    cantNotas         db 0                           ; Cantidad total de notas leídas
+    cantAprob         db 0                           ; Cantidad de notas aprobadas
+    promedio          db 0                           ; Promedio de las notas (no usado en este ejemplo)
+    mensajePorcentaje db "Porcentaje de aprobados: " ; Mensaje para mostrar el porcentaje en pantalla
+    porcentaje        db 0                           ; Porcentaje de exámenes aprobados (resultado final)
+    resto             db 0
+    mensajeNotas      db "ingrese una nota: "        ; Mensaje para mostrar las notas ingresadas
+    notas             dw ?                           ; Vector para almacenar hasta 100 notas (máximo)
+
+org 3000h
+    IMPRIMIR_SALTO:                                                                 ; Subrutina para imprimir un salto de línea (usada para separar visualmente en pantalla)
+        mov bx, offset salto                                                        ; BX apunta al carácter LF (10)
+        mov al, 1                                                                   ; AL = longitud (1 carácter)
+        int 7                                                                       ; Imprime el salto de línea
+    ret
+
+    LEER_NOTAS:                                      ; --- Lee las notas desde teclado y las almacena en el vector ---
+        ; Entrada por pila----------------------
+        ;   direccion de retorno  7FFAh--->200Dh
+        ;   vector notas          7FFCh--->1031h
+        ;   mensaje notas         7FFEh--->101Fh
+        ; salida--------------------------------
+        ;   CX-> cantidad de notas leidas
+        mov cx, 0                                    ; CX = contador de notas leídas
+        ; al = longitud del mensaje
+
+        leerNota:
+            mov ax, offset notas - offset mensajeNotas ; ax = longitud mensaje notas
+            mov bx, sp                      ; BX apunta al mensaje a mostrar
+            add bx, 4
+            mov bx, [bx] ; bx apunta al mensaje notas
+            int 7
+
+            mov bx, sp                      ; BX apunta al vector de notas
+            add bx, 2
+            mov bx, [bx]                     ; BX apunta a la posición actual en el vector
+            int 6                                    ; Lee un carácter desde teclado
+            
+            mov ax, 1
+            int 7
+            
+            push bx                             ; Guarda la dirección del vector de notas
+
+            call IMPRIMIR_SALTO
+            
+            pop bx                              ; Recupera la dirección del vector de notas
+            
+            cmp byte ptr [bx], '.'                   ; ¿Es el carácter '.'? (fin de ingreso)
+            jz finLeerNotas                          ; Si es '.', termina la lectura
+
+            inc cx                                   ; Suma 1 al contador de notas
+
+            mov bx, sp
+            add bx, 2
+            inc byte ptr [bx]
+        jmp leerNota                                 ; Repite el ciclo de lectura
+        
+        finLeerNotas:
+    ret                                              ; Retorna al llamador
+
+    CALC_APROBADOS:                                  ; --- Cuenta cuántas notas son aprobadas (>=4) ---
+        ; Entrada:
+        ;   BX -> dirección del vector de notas
+        ;   CX -> cantidad de notas
+        ; Salida:
+        ;   AX -> cantidad de aprobadas
+
+        mov ax, 0                                    ; AX = contador de aprobados (resultado)
+
+        contarAprobados:
+            cmp byte ptr [bx], '4'                   ; ¿La nota actual es menor que 4?
+            js desaprobado                           ; Si es menor, salta (no suma)
+
+            inc ax                                   ; Si es >=4, suma 1 al contador de aprobados
+
+            desaprobado:
+                inc bx                               ; Avanza al siguiente elemento del vector
+            
+            dec cx                                   ; Resta 1 al contador de elementos
+        jnz contarAprobados                                     ; Si quedan elementos, repite
+    ret                                              ; Retorna al llamador
+
+    DIV:                                             ; --- Divide AX (A) por DX (B), ambos positivos, resultado entero ---
+        ; Entrada:
+        ;   AX = dividendo
+        ;   DX = divisor
+        ; Salida:
+        ;   CX = cociente
+        ;   AX = resto
+        mov cx, 0                                    ; CX = cociente (resultado, inicia en 0)
+
+        cmp dx, 0                                    ; ¿Divisor = 0?
+        jz finDiv                                    ; Si es 0, termina (evita división por cero)
+
+        dividir:
+            cmp ax, dx                               ; ¿AX < DX? (¿A < B?)
+            js finDiv                                ; Si sí, terminó la división
+
+            sub ax, dx                               ; Resta B de A
+            inc cx                                   ; Suma 1 al cociente
+        jmp dividir                                  ; Repite hasta que AX < DX
+
+        finDiv:
+            ; ax = resto (lo que sobró)
+            ; cx = cociente (resultado de la división)
+    ret                                              ; Retorna al llamador
+
+    MUL:                                             ; --- Multiplica AX (A) por DX (B), ambos positivos ---
+        ; Entrada:
+        ;   AX = A
+        ;   DX = B
+        ; Salida:
+        ;   CX = resultado (A * B)
+        mov cx, 0                         ; CX = resultado de la multiplicación
+        
+        cmp ax, dx                        ; Compara los operandos
+        js continuar                   ; Si AX < DX, salta a multiplicar
+
+        ; Si DX < AX, invierte para optimizar el ciclo
+            mov bx, ax                        ; BX = A (primer multiplicando)
+            mov ax, dx                        ; AX = B (segundo multiplicando)
+            mov dx, bx                        ; DX = A (primer multiplicando)
+        ; Así el ciclo es más corto (menos iteraciones)
+
+        continuar:
+            cmp ax, 0                        ; ¿AX = 0?
+            jz finMultiplicar                 ; Si es 0, termina (resultado es 0)
+        
+        multiplicar:
+            add cx, dx                        ; Suma DX al resultado parcial
+
+            dec ax                            ; Resta 1 a AX (segundo multiplicando)
+        jnz multiplicar                   ; Repite hasta que AX = 0
+
+        finMultiplicar:
+            ; cx = resultado de la multiplicación
+    ret                                              ; Retorna al llamador
+    
+    CALC_PORCENTAJE:                                 ; --- Calcula el porcentaje de aprobados ---
+        ; Entrada:
+        ;   AX = cantidad aprobadas
+        ;   BX = cantidad total
+        ; Salida:
+        ;   CX = porcentaje entero (0-100)
+        
+        mov dx, 100                                  ; DX = 100 (factor para porcentaje)
+        ; ax = cantidad de aprobados
+        call MUL                                     ; Multiplica: CX = 100 * aprobados
+
+        ; cx = resultado de la multiplicación
+        mov ax, cx                                   ; AX = cantAprobados * 100
+        mov dx, bx                                   ; DX = cantTotal de notas
+        call DIV                                     ; Divide: CX = (100 * aprobados) / total
+
+        ; cx = porcentaje final
+    ret                                              ; Retorna al llamador
+
+org 2000h                                            ; --- Sección principal de código ---
+    mov bx, offset mensajeNotas                      ; BX = dirección del mensaje a mostrar
+    push bx
+    
+    mov bx, offset notas                             ; BX = dirección inicial del vector de notas
+    push bx
+    call LEER_NOTAS                                  ; Lee las notas desde teclado y las almacena
+
+    mov cantNotas, cl                                ; Guarda la cantidad de notas leídas en memoria
+    
+    mov bx, offset notas                             ; BX = dirección inicial del vector de notas
+    ; cx = cant notas
+    call CALC_APROBADOS                              ; Cuenta cuántas notas son aprobadas (>=4)
+
+    mov cantAprob, al                                ; Guarda la cantidad de aprobados en memoria
+
+    ; ax = cantAprob (cantidad de aprobados)
+    mov bx, 0                                 ; BX = 0
+    mov bl, cantNotas                         ; BL = cantidad total de notas
+    call CALC_PORCENTAJE                      ; Calcula el porcentaje de aprobados
+
+    mov porcentaje, cl                     ; Guarda el porcentaje calculado en memoria
+    mov resto, al
+
+    int 0                                  ; Finaliza el programa
+end
