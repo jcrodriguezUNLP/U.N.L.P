@@ -1,3 +1,6 @@
+// Analice, compile y ejecute el siguiente código.
+// Indique imprime y por qué
+
 #include <stdio.h> 
 #include <stdlib.h> 
  
@@ -5,18 +8,18 @@
 void f( int * p ) ; 
  
 int main(){ 
- 
-    int * ptr = NULL; // Se declara un puntero a int y se inicializa en NULL
-    f(ptr);           // Se llama a la función f pasando ptr como argumento
+    int * ptr = NULL ;                      // Se declara un puntero a int y se inicializa en NULL
+    
+    f( ptr ) ;                              // Se llama a la función f pasando ptr como argumento
  
     // Se verifica si ptr sigue siendo NULL
-    if (ptr == NULL) 
-        printf("ptr es NULL\n");      // Si ptr es NULL, imprime este mensaje
+    if( ptr == NULL ) 
+        printf( "ptr es NULL\n" ) ;         // Si ptr es NULL, imprime este mensaje
     else 
-        printf("ptr no es NULL\n");  // Si ptr no es NULL, imprime este mensaje
+        printf( "ptr no es NULL\n" ) ;      // Si ptr no es NULL, imprime este mensaje
  
-    return 0; // Fin del programa
-} 
+    return 0 ;                              // Fin del programa
+}
  
 // Definición de la función f
 void f( int * p ) { 

@@ -18,6 +18,7 @@
         ¿Qué utilidad tiene el operador sizeof a la hora de reservar memoria dinámicamente?
             sizeof permite calcular el tamaño exacto de un tipo de dato, asegurando que se reserve la cantidad correcta de memoria.
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -25,23 +26,62 @@ int main() {
     int *arr  ;
     int n = 5 ;
 
-    // Reservar memoria para un arreglo de 5 enteros
-    arr = (int *)malloc(n * sizeof(int));
-    
-    if (arr == NULL) {
-        printf( "Error al reservar memoria.\n" ) ;
+    // malloc
+        // Reservar memoria para un arreglo de 5 enteros
+        arr = (int *) malloc( n * sizeof(int) ) ;
+        
+        if (arr == NULL) {
+            printf( "Error al reservar memoria.\n" ) ;
 
-        return( 1 ) ;
-    }
+            return( 1 ) ;
+        }
 
-    // Inicializar y mostrar los valores
-    for( int i = 0 ; i < n ; i++ ) {
-        arr[i] = i * 2 ;
-        printf( "arr[%d] = %d\n", i, arr[i] ) ;
-    }
+        // Inicializar y mostrar los valores
+        for( int i = 0 ; i < n ; i++ ) {
+            arr[ i ] = i * 2 ;
+            
+            printf( "arr[%d] = %d\n", i, arr[ i ] ) ;
+        }
 
-    // Liberar la memoria reservada
-    free( arr ) ;
+        // Liberar la memoria reservada
+        free( arr ) ;
+
+    // calloc
+        // Reservar memoria para un arreglo de 5 enteros e inicializar a cero
+        arr = (int *) calloc( n, sizeof(int) ) ;
+        
+        if (arr == NULL) {
+            printf( "Error al reservar memoria.\n" ) ;
+
+            return( 1 ) ;
+        }
+
+        // Mostrar los valores inicializados a cero
+        for( int i = 0 ; i < n ; i++ ) {
+            printf( "arr[%d] = %d\n", i, arr[ i ] ) ;
+        }
+
+        // Liberar la memoria reservada
+        free( arr ) ;
+
+    // realloc
+        // Cambiar el tamaño del arreglo a 10 enteros
+        arr = (int *) realloc( arr, 10 * sizeof(int) ) ;
+
+        if (arr == NULL) {
+            printf( "Error al cambiar el tamaño de la memoria.\n" ) ;
+
+            return( 1 ) ;
+        }
+
+        // Inicializar y mostrar los nuevos valores
+        for( int i = 5 ; i < 10 ; i++ ) {
+            arr[ i ] = i * 2 ;
+            printf( "arr[%d] = %d\n", i, arr[ i ] ) ;
+        }
+
+        // Liberar la memoria reservada
+        free( arr ) ;
 
     return( 0 ) ;
 }

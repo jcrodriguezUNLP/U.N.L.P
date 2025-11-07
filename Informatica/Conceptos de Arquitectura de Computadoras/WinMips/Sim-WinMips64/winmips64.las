@@ -1,1 +1,1 @@
-C:\Users\jcrod\U.N.L.P\Informatica\Conceptos de Arquitectura de Computadoras\Practicas\Practica 4\2_1.s
+C:\Users\jcrod\U.N.L.P\Informatica\Conceptos de Arquitectura de Computadoras\Practicas\Practica 4\2_6.s
