@@ -1,0 +1,138 @@
+; escriba un programa que envie los caracteres de un mensaje a un dispositivo conectado al PIO a travez del pueerto PB
+; El protocolo de comunicacion del dispositivo nuevo requiere que se envie primero la longitud del mensaje como un byte
+; Luego cada 5 segundos se debe enviar un caracter del menaje hasta finalizar
+
+; TIMER
+CONT  EQU 10h   ; Contador del Reloj
+COMP  EQU 11h   ; Comparador del Reloj
+
+ID_TIMER    EQU 10    ; ID elegido para la interrupción
+
+; PIO
+PB      EQU 31h   ; Puerto B del PIO (Salida de datos)
+CB      EQU 33h   ; Control del Puerto B del PIO
+
+; PIC
+EOI     EQU 20h   ; End of Interrupt
+IMR     EQU 21h   ; Interrupt Mask Register
+INT1    EQU 25h   ; ID para el Timer
+
+ORG 40                ; Dirección del vector ( ID_TIMER * 4 -> 10 * 4 = 40)
+    DW RUTINA_RELOJ
+
+ORG 1000h
+    flag_fin  DB 0    ; Bandera para terminar el main
+    mensaje   DB "Este es el mensaje a enviar"
+    fin       DB ?    ; Etiqueta auxiliar para calcular longitud
+
+ORG 3000h
+    RUTINA_RELOJ:
+        PUSH AX
+
+        ; Verificamos si terminamos (CL llega a 0)
+        CMP CX, 0
+        JZ apagar_timer
+
+        ; --- ENVIAR CARÁCTER (Cada 5 segundos) ---
+        MOV AL, [BX]       ; Leemos el carácter apuntado por BX
+        OUT PIO_PB, AL     ; Lo enviamos al Puerto B del PIO
+
+        ; --- ACTUALIZAR REGISTROS (PERSISTENCIA) ---
+        INC BX             ; Avanzamos al siguiente carácter
+        DEC CX             ; Decrementamos la cantidad restante
+
+        call REINICIAR_TIMER  ; Reiniciamos el timer para otros 5 segundos
+        JMP fin_isr
+
+        apagar_timer:
+            ; Si CX es 0, terminamos todo
+            MOV AL, 0FFh
+            OUT PIC_IMR, AL    ; Bloqueamos interrupciones
+            MOV flag_fin, 1    ; Avisamos al main
+
+        fin_isr:
+            MOV AL, 20h
+            OUT PIC_EOI, AL    ; EOI al PIC
+            
+        POP AX             ; Restauramos AX
+    IRET               ; BX y CX vuelven modificados al main (que no los usa)
+
+org 3600h
+    REINICIAR_TIMER:
+        push AX
+
+        ; Reiniciamos el contador del timer a 0
+        MOV AL, 0
+        OUT CONT, AL
+
+        POP AX
+    ret
+
+    CONFIGURAR_TIMER:
+        push AX
+
+        call REINICIAR_TIMER
+
+        ; Configuramos el comparador a 5 segundos
+        MOV AL, 5
+        OUT COMP, AL
+
+        POP AX
+    RET
+
+    CONFIGURAR_PIC:
+        PUSH AX
+
+        ; Habilitamos interrupciones del Timer
+        MOV AL, 11111101b   ; Habilito solo la del Timer (ID_TIMER)
+        OUT IMR, AL
+
+        ; Configuramos la rutina del Timer en el PIC
+        MOV AL, ID_TIMER
+        OUT INT1, AL
+
+        POP AX
+    RET
+
+    CONFIGURAR_PIO:
+        ; recibe:
+        ;   CX = longitud del mensaje a enviar
+
+        PUSH AX
+
+        ; Configuramos el Puerto B del PIO como salida
+        MOV AL, 00000000b   ; 0 salida 1 entrada
+        OUT CB, AL
+
+        ; mandamos la longitud primero
+        MOV AL, CL          ; Movemos la longitud a AL (8 bits)
+        OUT PB, AL          ; Enviamos longitud por el puerto
+
+        POP AX
+    RET
+
+ORG 2000h
+    CLI ; Deshabilitar interrupciones
+        MOV AX, 0
+        MOV BX, 0
+        MOV CX, 0
+        MOV DX, 0
+
+        MOV CX, offset fin - offset mensaje             ; CX = Longitud (Usaremos CX como contador global)
+        call CONFIGURAR_TIMER   ; Configuramos el timer
+
+        call CONFIGURAR_PIC     ; Configuramos el PIC
+
+        call CONFIGURAR_PIO     ; Configuramos el PIO
+
+        MOV BX, OFFSET mensaje  ; BX = Inicio del mensaje (Puntero global)
+    STI ; Habilitar interrupciones. Arranca el conteo de 5s.
+
+    ; 6. BUCLE DE ESPERA
+    ; Como este bucle NO toca ni BX ni CX, es seguro que la interrupción los use.
+    LOOP:
+        CMP flag_fin, 1
+    JNZ LOOP
+
+    INT 0
+END

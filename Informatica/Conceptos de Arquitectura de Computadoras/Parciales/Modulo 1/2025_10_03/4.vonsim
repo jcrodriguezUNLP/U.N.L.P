@@ -1,0 +1,103 @@
+; escriba un programa que lea 20 letras de teclado y las almacene en un string
+; luego envie a la impresora todas las letras para imprimir
+; la comunicacion se realiza a travez del HANDSHAKE por interrupciones
+
+; PIC
+EOI    equ 20h
+IMR    equ 21h
+INT2   equ 26h
+
+idINT2 equ 12
+
+; HANDSHAKE
+DATO   equ 40h
+ESTADO equ 41h
+
+
+
+org 48
+    dw INTER_HANDSHAKE
+
+org 3000h
+    INTER_HANDSHAKE:
+        push AX             ; salvo Ax
+
+        mov AX, [BX]        ; mando caracter a handshake
+        out DATO, AL
+
+        inc BX              ; avanzo
+        dec CL
+
+        jnz vuelvo          ; si no termine repito
+
+        ; si termine DESHABILITO EL HANDSHAKE
+            mov AL, 11111111        
+            out IMR, AL
+
+            mov flag, 1
+
+        vuelvo:
+            mov AL, 20h
+            out EOI, AL
+
+            pop AX          ; recupero AX
+    iret
+
+org 3200h
+    HABILITAR_HANDSHAKE:
+        ; handshake
+        mov AL, 10000000b
+        out ESTADO, AL
+
+        ; pic
+            mov AL, 11111011b   ; habilito handshake
+            out IMR, AL
+
+            mov AL, idINT2
+            out INT2, AL
+    ret
+
+    LEER_VECTOR:
+        ; recibe:
+        ;   BX = direccion del vector
+        ;   CL = longitud  del vector
+
+        push BX
+        push CX
+
+        leerCaracteres:
+            int 6
+            
+            inc BX
+            dec CL
+        jnz leerCaracteres
+
+        pop CX
+        pop BX
+    ret
+
+org 1000h
+    flag     db 0
+    longitud db 5
+    vector   db ?
+
+org 2000h
+    cli
+        mov AX, 0
+        mov BX, 0
+        mov CX, 0
+        mov DX, 0
+
+        mov BX, offset vector
+        mov CL, longitud
+        call LEER_VECTOR
+
+        call HABILITAR_HANDSHAKE
+    sti
+
+    loop:
+        cmp flag, 1
+    jnz loop
+
+    int 0
+END

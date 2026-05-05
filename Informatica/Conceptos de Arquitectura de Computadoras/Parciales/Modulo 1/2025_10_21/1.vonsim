@@ -1,0 +1,53 @@
+; el siguiente programa utiliza la pila para pasar parametros
+; ¿ que valor queda almacenado en RES ?
+; escribirlo en decimal
+
+org 3000h
+    rut:
+        mov BX, SP
+        add BX, 2
+        mov AX, 10
+
+        load:
+            cmp CL, 0
+            jz fin
+
+            sub AX, [BX]
+            
+            add bx, 2
+            dec CL
+        jmp load
+
+        fin:
+    ret
+
+org 1000h
+    vec dw 1, 1, 2, 2
+    res dw ?
+
+org 2000h
+    mov BX, offset vec
+    mov CL, 4
+
+    loop:
+        mov AX, [BX]
+        push AX
+        
+        add BX, 2
+        dec CL
+    jnz loop
+
+    mov CL, 4
+
+    call rut
+
+    mov res, AX
+    mov CL, 4
+
+    loop2:
+        pop AX
+        dec CL
+    jnz loop2
+
+    int 0
+END

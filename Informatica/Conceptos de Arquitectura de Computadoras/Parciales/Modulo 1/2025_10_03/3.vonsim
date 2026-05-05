@@ -1,0 +1,127 @@
+; escriba un programa que realice la lectura de 20 caracteres minusculas entre 'a' y 'z' y los guarde en un vector
+; luego debe llamar a la subrutina AMAYUS, que convierte el codigo ACII de cada caracter en la mayuscula correspondiente
+; para ello implementar las subrutinas:
+;   ES_MINUS:
+;       recibe un caracter en AL y devuelve FF en AH si es una minuscula, 0 en el caso contrario.
+;   LEER_MINUS:
+;       lee un caracter de teclado. recibe en BX la direccion en donde guardar el caracter leido
+;       si el caracter no es una minuscila vuelve a leer un caracter hasta que lo sea
+;   AMAYUS:
+;       recibe un vector de minusculas por referencia en BX con longitud CL y convierte cada uno a mayuscula
+;   LEER_VECTOR:
+;       lee y almacena los datos en el vector recibido en BX con longitud CL
+
+org 3000h
+    ES_MINUS:
+        ; recibe:
+        ;   AL = caracter
+        ; devuelve:
+        ;   AH = FFh -> si es minuscula
+        ;   AH = 0   -> caso contrario
+
+        cmp AL, 'z' + 1
+        jns noEsMinus
+
+        cmp AL, 'a'
+        jns esMinus
+
+        noEsMinus:
+            mov AH, 0
+            jmp salirES_MINUS
+        
+        esMinus:
+            mov AH, 0FFh
+        
+        salirES_MINUS:
+    ret
+
+    LEER_MINUS:
+        ; recibe:
+        ;   BX = direccion donde guardar el caracter leido
+
+        add BX, 0 ; para q no de error
+        
+        leerCaracter:
+            int 6
+
+            mov AL, [BX]
+            call ES_MINUS
+
+            cmp AH, 0FFh
+        jnz leerCaracter
+    ret
+
+    LEER_VECTOR:
+        ; recibe:
+        ;   BX = direccion del vector
+        ;   CL = longitud  del vector
+
+        add BX, 0 ; para q no de error
+        
+        leerCaracteres:
+            call LEER_MINUS
+            
+            inc BX
+            dec CL
+        jnz leerCaracteres
+    ret
+
+    A_MAYUS:
+        ; recibe:
+        ;   BX = direccion del vector
+        ;   CL = longitud  del vector
+
+        mov DL, 'a'
+        sub DL, 'A'
+
+        loop:
+            sub [BX], DL
+
+            inc BX
+            dec CL
+        jnz loop
+    ret
+
+    ; opcional
+        IMPRIMIR_VECTOR:
+            mov AL, 1
+
+            imprimirCaracter:
+                int 7
+
+                inc BX
+                dec CL
+            jnz imprimirCaracter
+
+            mov BX, offset salto
+            int 7
+        ret
+    ;
+
+org 1000h
+    salto  db 10
+    vector db ?
+
+org 2000h
+    mov BX, offset vector
+    mov CL, 5
+    call LEER_VECTOR
+
+    ; opcional
+        mov BX, offset vector
+        mov CL, 5
+        call IMPRIMIR_VECTOR
+    ;
+
+    mov BX, offset vector
+    mov CL, 5
+    call A_MAYUS
+
+    ; opcional
+        mov BX, offset vector
+        mov CL, 5
+        call IMPRIMIR_VECTOR
+    ;
+
+    int 0
+END

@@ -1,0 +1,69 @@
+; el programa permite apagar o prender las luces mediante las llaves cuando se presiona la tecla F10
+; el usuario puede cambiar las llaves cuando quiere, pero las luces solo se actualizan con el estado de las con el estado de las llaves cuando se presiona la tecla f10
+; el programa termina cuando todas las luces se apagan
+; completar
+
+EOI     equ 20h
+IMR     equ 21h
+
+PA      equ 30h
+PB      equ 31h
+CA      equ 32h
+CB      equ 33h
+
+INT0    equ 24h
+
+org 40
+    dir_rutf10 dw rutf10
+
+org 3600h
+    f10:
+        cli
+            mov AL, 0FEh    ; linea completada
+            out IMR, AL
+            mov AL, 10
+            out INT0, AL
+        sti
+    ret
+
+org 3000h
+    rutF10:
+        in AL, PA
+        out PB, AL          ; linea completada
+        mov luces, AL
+        
+        mov AL, 20h
+        out EOI, AL
+    iret
+
+org 3500h
+    pio:
+        mov AL, 0FFh
+        out CA, AL
+        mov AL, 0
+        out CB, AL
+    ret
+
+org 3700h
+    esperar:
+        cmp luces, 0
+        jnz esperar
+    ret
+
+org 1000h
+    msj   db "Usa las llaves"
+          db " y el f10 para"
+          db " apagar los leds"
+    luces db ?
+
+org 2000h
+    mov BX, offset msj
+    mov AL, offset luces - offset msj
+    int 7
+
+    call pio
+    call f10
+    call esperar        ; linea completada
+
+    int 0
+END

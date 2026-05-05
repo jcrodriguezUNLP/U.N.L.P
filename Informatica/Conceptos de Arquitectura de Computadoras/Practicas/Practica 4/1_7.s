@@ -87,3 +87,20 @@
 ;    -> Los códigos ASCII son valores **positivos** (sin signo).
 ;    -> La instrucción que rellena los bits superiores con ceros es **lbu**.
 ; ------------------------------------------------------------------------------------------------
+
+
+; ===========================================================================================================================================
+; TABLA DE REFERENCIA: INSTRUCCIONES DE CARGA (LOAD)
+; ===========================================================================================================================================
+; | Instr | Bytes | Propósito (Tipo de Dato)   | Comportamiento de Extensión (Bits restantes en registro)     | Ejemplo Práctico de Uso     |
+; | :---- | :---- | :------------------------- | :----------------------------------------------------------- | :-------------------------- |
+; | ld    | 8     | Entero 64b / Puntero       | Copia exacta (64 bits). No aplica extensión.                 | Direcciones de memoria.     |
+; | :---- | :---- | :------------------------- | :----------------------------------------------------------- | :-------------------------- |
+; | lw    | 4     | Entero 32b (int con signo) | Extensión de SIGNO (El bit 31 se copia hasta el bit 63).     | Contadores, Aritmética int. |
+; | :---- | :---- | :------------------------- | :----------------------------------------------------------- | :-------------------------- |
+; | lwu   | 4     | Entero 32b (unsigned int)  | Extensión de CEROS (Rellena con 0s los bits superiores).     | Tamaños, Máscaras lógicas.  |
+; | :---- | :---- | :------------------------- | :----------------------------------------------------------- | :-------------------------- |
+; | lb    | 1     | Entero 8b (tiny int)       | Extensión de SIGNO (El bit 7 se copia hasta el bit 63).      | Números muy chicos (-5, 10).|
+; | :---- | :---- | :------------------------- | :----------------------------------------------------------- | :-------------------------- |
+; | lbu   | 1     | Carácter (char) / Byte     | Extensión de CEROS (Rellena con 0s los bits superiores).     | Cadenas de texto (ASCII).   |
+; ===========================================================================================================================================

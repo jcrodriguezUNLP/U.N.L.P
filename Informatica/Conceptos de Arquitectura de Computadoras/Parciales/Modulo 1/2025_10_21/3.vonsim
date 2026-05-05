@@ -1,0 +1,85 @@
+; escriba un programa que calcule la suma de los numeros impares de un vector en RES
+; para ello implementar el programa principal y las siguientes subrutinas, sin usar variables globales en la resolucion
+;   ES_IMPAR:
+;       recibe un numero en CX y devulve el valor 1 en AX si es impar y el valor 0 en caso contrario
+;   PROCESAR:
+;       recibe en BX la direccion del vector y en CX su longitud
+;       devuelve en AX la suma de los numeros impares del vector
+
+
+org 1000h
+    vector dw 1, -20, 15, 5, -8, 7, 11
+    long   dw 8
+    res    dw ?
+
+org 3000h
+    ES_IMPAR:
+        ; recibe:
+        ;   CX = numero
+        ; devuelve:
+        ;   AX = 1 -> impar
+        ;   AX = 0 -> caso contrario
+
+        push CX
+
+        mov AX, 1
+
+        and CX, 1
+        jnz impar
+
+        mov AX, 0
+
+        impar:
+        pop CX
+    ret
+
+    PROCESAR:
+        ; recibe:
+        ;   BX = direccion del vector
+        ;   CX = longitud  del vector
+        ; devuelve:
+        ;   AX = suma de los numeros impares
+
+        push BX
+        push CX
+        push DX
+
+        mov AX, 0
+
+        loop:
+            push CX
+            push AX
+
+            mov CX, [BX]
+            call ES_IMPAR
+
+            mov DX, AX
+            
+            pop AX
+            
+            cmp DX, 1
+            jnz continuar
+
+            add AX, CX
+
+            continuar:
+                pop CX
+                
+                add BX, 2
+                dec CX
+        jnz loop
+
+        pop DX
+        pop CX
+        pop BX
+    ret
+
+org 2000h
+    mov BX, offset vector
+    mov CX, long
+    call PROCESAR
+
+    mov res, AX
+
+    int 0
+END

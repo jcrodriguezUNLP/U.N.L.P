@@ -1,0 +1,82 @@
+; ==============================================================================
+; CONSTANTES Y PUERTOS DE HARDWARE
+; ==============================================================================
+TIMER_CONT  EQU 10h   ; Puerto del CONTADOR del Timer (Cuenta 0, 1, 2...)
+TIMER_COMP  EQU 11h   ; Puerto del COMPARADOR del Timer (Valor objetivo)
+PIC_EOI     EQU 20h   ; Puerto de FIN DE INTERRUPCIÓN del PIC
+PIC_IMR     EQU 21h   ; Puerto de MÁSCARA del PIC (Habilitar/Deshabilitar)
+PIC_INT1    EQU 25h   ; Puerto para configurar el ID de la interrupción del Timer
+
+ID_TIMER    EQU 10    ; Elegimos el ID 10 para identificar al Timer
+DIR_RUTINA  EQU 40    ; Dirección del vector: ID * 4 (10 * 4 = 40)
+
+; ==============================================================================
+; VECTOR DE INTERRUPCIONES
+; ==============================================================================
+ORG 40                ; Nos posicionamos en la dirección 40 (10 * 4)
+    DW RUTINA_RELOJ   ; Escribimos la dirección de memoria donde está nuestra rutina
+
+; ==============================================================================
+; DATOS DEL PROGRAMA
+; ==============================================================================
+ORG 1000h
+    mensaje DB '!'    ; El carácter que vamos a imprimir cada vez que suene el reloj
+
+; ==============================================================================
+; RUTINA DE SERVICIO DE INTERRUPCIÓN (ISR) - SE EJECUTA CADA 3 SEGUNDOS
+; ==============================================================================
+ORG 3000h
+    RUTINA_RELOJ:
+        PUSH AX             ; Guardamos AX para no alterar el programa principal
+        PUSH BX             ; Guardamos BX por seguridad
+
+        ; 1. ACCIÓN: Imprimir el carácter '!'
+        MOV BX, OFFSET mensaje ; Apuntamos BX al mensaje
+        MOV AL, 1              ; Cantidad de caracteres a imprimir
+        INT 7                  ; Llamada al sistema para imprimir
+
+        ; 2. REINICIAR EL TIMER
+        ; Es OBLIGATORIO poner el contador a 0, si no, sigue contando y no dispara más.
+        MOV AL, 0              ; Cargamos 0 en AL
+        OUT TIMER_CONT, AL     ; Reiniciamos el registro CONTADOR (Puerto 10h)
+
+        ; 3. AVISAR AL PIC (Fin de Interrupción)
+        MOV AL, 20h            ; Valor fijo para EOI
+        OUT PIC_EOI, AL        ; Le decimos al PIC que ya atendimos la llamada
+
+        POP BX              ; Restauramos BX
+        POP AX              ; Restauramos AX
+        IRET                ; Retorno de Interrupción (Vuelve a donde estaba el main)
+
+; ==============================================================================
+; PROGRAMA PRINCIPAL (CONFIGURACIÓN)
+; ==============================================================================
+ORG 2000h
+    CLI                     ; Deshabilitamos interrupciones por seguridad al configurar
+
+    ; 1. CONFIGURAR EL ID EN EL PIC
+    MOV AL, ID_TIMER        ; Cargamos nuestro ID elegido (10)
+    OUT PIC_INT1, AL        ; Lo enviamos al puerto INT1 (25h) del PIC
+
+    ; 2. CONFIGURAR EL TIEMPO EN EL TIMER
+    MOV AL, 3               ; Queremos que suene cada 3 segundos
+    OUT TIMER_COMP, AL      ; Lo enviamos al puerto COMPARADOR (11h)
+
+    ; 3. INICIALIZAR EL CONTADOR EN 0
+    MOV AL, 0               ; Empezamos desde 0
+    OUT TIMER_CONT, AL      ; Lo enviamos al puerto CONTADOR (10h)
+
+    ; 4. HABILITAR LA INTERRUPCIÓN EN EL IMR
+    ; El Timer está en la Línea 1 (Bit 1).
+    ; Mascara: 1111 1101b = FDh (El 0 habilita, el 1 deshabilita)
+    MOV AL, 0FDh            ; Máscara para habilitar solo el Timer
+    OUT PIC_IMR, AL         ; Enviamos al IMR (21h)
+
+    STI                     ; Habilitamos interrupciones globales. ¡El reloj arranca!
+
+    ; 5. BUCLE INFINITO
+    ; La CPU se queda aquí atrapada. El Timer interrumpirá este bucle cada 3 seg.
+    LAZO:
+        JMP LAZO            ; Salto incondicional a sí mismo
+
+END

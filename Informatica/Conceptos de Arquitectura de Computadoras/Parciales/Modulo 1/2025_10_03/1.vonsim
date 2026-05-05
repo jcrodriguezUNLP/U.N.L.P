@@ -1,0 +1,28 @@
+; el siguiente programa utiliza la pila para pasar parametros
+; ¿ que valores quedan almacenados en los registros ?
+
+org 3500h
+    rut:
+        mov BX, SP                      ; BX = 7FFAh
+        add BX, 4                       ; BX = 7FFEh
+        mov BX, [BX]                    ; BX = 1200h
+        add BX, 6                       ; BX = 1206h
+        mov CL, [BX]                    ; CL = 3
+        sub BX, 4                       ; BX = 1202h
+        mov AL, [BX]                    ; AL = 7
+    ret
+
+org 1200h
+    num db 9, 8, 7, 6, 5, 4, 3, 2, 1
+
+org 2000h
+    mov  BX, offset num                 ; BX    = 1200h
+    push BX                             ; 7FFEh = 1200h
+    
+    add  BX, 2                          ; BX    = 1202h
+    push BX                             ; 7FFCh = 1202h
+    
+    call rut                            ; 7FFAh = 200Dh
+    
+    int 0
+END

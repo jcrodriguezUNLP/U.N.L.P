@@ -1,0 +1,62 @@
+; El siguiente programa muestra en pantalla una letra cada 5 segundos
+; se imprimen todos los digitos entre '0' y '9' con un caracter nueva linea entre cada uno y luego el programa ternima
+; completar las instrucciones faltantes
+
+EOI     equ 20h
+IMR     equ 21h
+INT1    equ 25h
+CONT    equ 10h
+COMP    equ 11h
+ESPERA  equ 5
+CAR_FIN equ '9'
+
+org 48h
+    rut dw clk
+
+org 1000h
+    car  db '0'                 ; linea completada
+    nl   db 10
+    flag db 0
+
+org 4000h
+    fin:
+        mov flag, 1             ; linea completada
+        mov AL, 0ffh
+        out IMR, AL
+    ret
+
+org 3000h
+    clk:
+        mov BX, offset car
+        mov AL, 2
+        int 7
+        cmp car, '9'            ; linea completada
+        
+        jnz seg
+
+        call fin
+
+        seg:
+            inc car
+            mov AL, 0
+            out CONT, AL
+            mov AL, 20h
+            out EOI, AL
+    iret
+
+org 2000h
+    cli
+    mov AL, 0fdh
+    out IMR, AL
+    mov AL, 12
+    out INT1, AL
+    mov AL, ESPERA
+    out COMP, AL
+    sti                         ; linea completada
+    
+    loop:
+        cmp flag, 1
+    jnz loop
+
+    int 0
+END

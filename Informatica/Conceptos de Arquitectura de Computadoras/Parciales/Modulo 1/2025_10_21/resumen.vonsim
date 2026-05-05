@@ -1,0 +1,62 @@
+Componente | Puerto | Nombre | Función                                  | Ejemplo Inicialización
+TIMER      | 10h    | CONT   | Contador actual (Escribir 0 reinicia)    | "MOV AL, 0    -> OUT 10h, AL"
+TIMER      | 11h    | COMP   | Comparador (Segundos para disparar INT)  | "MOV AL, 5    -> OUT 11h, AL"
+PIC        | 20h    | EOI    | Fin de Interrupción (Siempre valor 20h)  | "MOV AL, 20h  -> OUT 20h, AL"
+PIC        | 21h    | IMR    | Máscara (0=Habilitado / 1=Deshabilitado) | "MOV AL, 0FDh -> OUT 21h, AL"
+PIC        | 24h    | INT0   | Configura ID para Tecla F10              | "MOV AL, 10   -> OUT 24h, AL"
+PIC        | 25h    | INT1   | Configura ID para Timer                  | "MOV AL, 11   -> OUT 25h, AL"
+PIC        | 26h    | INT2   | Configura ID para Handshake              | "MOV AL, 12   -> OUT 26h, AL"
+PIC        | 27h    | INT3   | Configura ID para PIO                    | "MOV AL, 13   -> OUT 27h, AL"
+PIO        | 30h    | PA     | Puerto A (Datos - Entrada/Llaves)        | "IN  AL, 30h"
+PIO        | 31h    | PB     | Puerto B (Datos - Salida/Leds)           | "MOV AL, 0FFh -> OUT 31h, AL"
+PIO        | 32h    | CA     | Control A (Bit 1 en 1 habilita INT)      | "MOV AL, 2    -> OUT 32h, AL"
+PIO        | 33h    | CB     | Control B (Bit 1 en 1 habilita INT)      | "MOV AL, 2    -> OUT 33h, AL"
+HANDSHAKE  | 40h    | DATO   | Datos (Al escribir envía e imprime)      | "MOV AL, 'A'  -> OUT 40h, AL"
+HANDSHAKE  | 41h    | ESTADO | Control (Bit 7 en 1 habilita INT)        | "MOV AL, 80h  -> OUT 41h, AL"
+
+
+Timer:
+    10h CONT
+        mov AL, seg -> segundos donde inicia el contador
+    11h COMP
+        mov AL, seg -> segundos para disparar la interrupción
+
+    Ejemplo:
+        CONT equ 10h
+        COMP equ 11h
+
+        mov AL, 0        ; Inicia el contador en 0
+        out 10h, AL
+        
+        mov AL, 5        ; Dispara la interrupción cada 5 segundos
+        out 11h, AL
+
+PIC:
+    20h EOI
+        mov AL, 20h -> valor fijo para indicar fin de interrupción
+        out EOI, AL
+    21h IMR
+        mov AL, mascara -> 0 habilita, 1 deshabilita interrupción
+        out IMR, AL
+
+        0000 0000b -> todas habilitadas
+        1111 1111b -> todas deshabilitadas
+
+        0000 0001b -> solo INT0( f10       ) deshabilitada
+        0000 0010b -> solo INT1( timer     ) deshabilitada
+        0000 0100b -> solo INT2( handshake ) deshabilitada
+        0000 1000b -> solo INT3( pio       ) deshabilitada
+    24h INT0
+        mov AL, id_interrupt -> id de interrupción para tecla F10
+        out INT0, AL
+    25h INT1
+        mov AL, id_interrupt -> id de interrupción para timer
+        out INT1, AL
+    26h INT2
+        mov AL, id_interrupt -> id de interrupción para handshake
+        out INT2, AL
+    27h INT3
+        mov AL, id_interrupt -> id de interrupción para pio
+        out INT3, AL
+
+    Ejemplo:
