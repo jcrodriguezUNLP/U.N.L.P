@@ -1,20 +1,41 @@
-// El  objetivo  del  siguiente  código  es  leer  dos  caracteres  de  teclado  e  imprimirlos  en  pantalla.
-// ¿El código cumple con su cometido?
-// En caso negativo, corríjalo para que lo haga. 
- 
-#include <stdio.h> 
+// ==============================================================================
+// ANÁLISIS 7: LECTURA E IMPRESIÓN DE CARACTERES
+// ==============================================================================
+// Contexto:
+//     - El código busca leer dos caracteres del teclado e imprimirlos.
+//
+// Tarea:
+//     1. ¿El código cumple con su cometido original?
+//     2. En caso negativo, corríjalo para que lo haga.
+// ==============================================================================
 
-int main() { 
+// --- 1. RESPUESTA TEÓRICA ---
+// ¿El código cumple con su cometido original?
+//     NO. Falla al leer el segundo carácter porque el primer 'scanf' deja el 
+//     salto de línea ('\n') en el buffer del teclado. El segundo 'scanf' 
+//     consume ese '\n' automáticamente en lugar de esperar la entrada del usuario.
+
+#include <stdio.h>
+
+int main() {
+    // --- 2. INICIALIZACIÓN ---
     char a ;
     char b ;
 
-    printf( "Ingrese el primer caracter:\n" ) ; 
-    scanf ( " %c" , &a                      ) ; // Note el espacio antes de %c, para ignorar espacios en blanco previos
-    printf( "Se leyo el caracter: %c\n" , a ) ; 
+    // --- 3. PROCESAMIENTO Y SALIDA ---
+    printf( "Ingrese el primer caracter: " ) ;
     
-    printf( "Ingrese el segundo caracter:\n" ) ; 
-    scanf ( " %c" , &b                       ) ; 
-    printf( "Se leyo el caracter: %c\n" , b  ) ; 
+    // Lectura normal del primer carácter
+    scanf( "%c" , &a ) ;
+    printf( "Se leyo el caracter: %c\n\n" , a ) ;
+
+    printf( "Ingrese el segundo caracter: " ) ;
     
-    return( 0 ) ; 
+    // CORRECCIÓN CORE: Se añade un espacio antes de %c. 
+    // Esto obliga a scanf a ignorar los espacios en blanco y saltos de línea
+    // ('\n', '\t', ' ') que hayan quedado residuales en el buffer estándar (stdin).
+    scanf( " %c" , &b ) ;
+    printf( "Se leyo el caracter: %c\n" , b ) ;
+
+    return( 0 ) ;
 }

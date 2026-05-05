@@ -1,62 +1,60 @@
-// 16
-    void swap( int (*a) , int (*b) );
+// ==============================================================================
+// ANÁLISIS 16: FUNCIÓN SWAP
+// ==============================================================================
+// Contexto:
+//     - Se supone que la función intercambia el valor de sus dos parámetros.
+//
+// Tarea:
+//     1. ¿Funciona correctamente?
+//     2. Si no es así, modifique la función swap para que lo haga.
+// ==============================================================================
 
-    int main() {
-        int x, y;
+// --- 1. RESPUESTAS TEÓRICAS ---
+// 1. ¿Funciona correctamente la versión original?
+//    NO. La versión original recibe los parámetros "por valor" (crea una copia 
+//    aislada en la pila de memoria de la función). Al modificar 'a' y 'b', 
+//    solo se modifican esas copias, dejando intactas las variables 'x' e 'y' 
+//    originales del main().
+//
+// 2. Modificación:
+//    Para modificar la memoria real del main(), la función debe recibir las 
+//    direcciones de memoria (punteros) de las variables. El operador '*' nos 
+//    permite "viajar" a esa dirección y reescribir el dato original.
 
-        x = 10;
-        y = 20;
+#include <stdio.h>
 
-        printf("x = %d\n" , x ) ;
-        printf("y = %d\n" , y ) ;
+// --- 2. PROTOTIPOS ---
+// CORRECCIÓN: Se cambia la firma para recibir punteros a enteros
+void swap( int *dirA , int *dirB ) ;
 
-        swap( &x , &y ) ;
+int main() {
+    // --- 3. INICIALIZACIÓN ---
+    int x = 10 ;
+    int y = 20 ;
 
-        printf( "\n" ) ;
+    printf( "--- Estado Inicial ---\n" ) ;
+    printf( "x = %d \t y = %d\n" , x , y ) ;
 
-        printf("x = %d\n" , x ) ;
-        printf("y = %d\n" , y ) ;
+    // --- 4. PROCESAMIENTO ---
+    // CORRECCIÓN: Enviamos las direcciones de memoria usando el operador '&'
+    swap( &x , &y ) ;
 
-        return 0 ;
-    }
+    // --- 5. SALIDA ---
+    printf( "\n--- Estado Final (Post-Swap) ---\n" ) ;
+    printf( "x = %d \t y = %d\n" , x , y ) ;
 
-    void swap( int (*a) , int (*b) ){
-        int tmp;
+    return( 0 ) ;
+}
 
-        tmp = (*a) ; // guarda el valor de a
-        (*a) = (*b) ;   // almacena b en a
-        (*b) = tmp ; // almacena a en b
-    }
-
-
-/*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 17
-
-// 18
-
-// 19
-
-// 20
-*/
-/* Explicacion de random
-    #include <time.h>
-    srand( time(null) ) ;
-    rand()%20; // numero entero 0 - RAND_MAX=20
-*/
+// --- 6. IMPLEMENTACIÓN CORE ---
+void swap( int *dirA , int *dirB ) {
+    
+    // 1. Rescatamos el valor alojado en la dirección A usando el operador '*'
+    int tmp = *dirA ;
+    
+    // 2. Escribimos en la dirección A el valor que vive en la dirección B
+    *dirA = *dirB ;
+    
+    // 3. Escribimos en la dirección B el valor temporal rescatado
+    *dirB = tmp ;
+}

@@ -1,42 +1,49 @@
+// ==============================================================================
+// PROBLEMA 1: NÚMEROS PSEUDOALEATORIOS Y POSICIONES
+// ==============================================================================
+// Escriba un programa que:
+//     genere:
+//         50 números enteros de forma pseudoaleatoria.
+//     almacene:
+//         los números generados en un arreglo unidimensional.
+//     imprima:
+//         - la cantidad de números pares que se encuentran en posiciones impares.
+//         - la cantidad de números impares que se encuentran en posiciones pares.
+// ==============================================================================
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-int main() {
-    // inicializar la semilla del generador de numeros aleatorios
-    // usando la hora actual como semilla
-    srand( time(NULL) ) ;
-    
-    int numeros[ 50 ] ;
-    int paresEnPosImpares = 0 ;
-    int imparesEnPosPares = 0 ;
+int esPar( int n ) {
+    return( !(n % 2) ) ;
+}
 
-    // inicializar el array con numeros enteros aleatorios
-    for (int i = 0 ; i < 50 ; i++ ) {
-        numeros[ i ] = rand() ;
+int main(){
 
-        // contar los pares en posiciones impares
-        if ( ((i % 2) != 0) && ((numeros[ i ] % 2) == 0) ) {
-            paresEnPosImpares++ ;
+    srand( time( NULL ) ) ;
+
+    int vectorNumeros[ 50 ] = { 0 } ;
+
+    int cantParesEnPosImpar = 0 ;
+    int cantImparesEnPosPar = 0 ;
+
+    for( int i = 0 ; i < 50 ; i++ ) {
+        vectorNumeros[ i ] = ( (rand() % 50) + 1 ) ;
+
+        if( esPar( i ) ) {
+            if( !esPar( vectorNumeros[i] ) ) {
+                cantImparesEnPosPar++ ;
+            }
         }
-
-        // contar los impares en posiciones pares
-        if ( ((i % 2) == 0) && ((numeros[ i ] % 2) != 0) ) {
-            imparesEnPosPares++ ;
+        
+        if( esPar( vectorNumeros[i] ) ){
+            cantParesEnPosImpar++ ;
         }
     }
 
-    // imprimir el array
-    printf( "Array de numeros aleatorios:\n" ) ;
-    for (int i = 0 ; i < 50 ; i++ ) {
-        printf( "\nIndice %d: %d", i, numeros[ i ] ) ;
-    }
-    printf( "\n" ) ;    
-
-    // imprimir los resultados
-    printf( "\nCantidad de numeros pares en posiciones impares: %d\n", paresEnPosImpares ) ;
-    printf( "Cantidad de numeros impares en posiciones pares: %d\n", imparesEnPosPares ) ;
-    printf( "\n" ) ;
+    printf( "cant pares en pos impar: %d\n" , cantParesEnPosImpar ) ;
+    printf( "cant impares en pos par: %d\n" , cantImparesEnPosPar ) ;
 
     return( 0 ) ;
 }

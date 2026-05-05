@@ -11,22 +11,24 @@
 
 // Estructura de un nodo de la lista enlazada simple de enteros
 typedef struct Nodo {
-    int dato;                // Valor almacenado en el nodo
-    struct Nodo* siguiente;  // Puntero al siguiente nodo
-} Nodo;
+    int    dato            ;        // Valor almacenado en el nodo
+    struct Nodo* siguiente ;        // Puntero al siguiente nodo
+} Nodo ;
 
 // a. Inicializa la lista enlazada, dejando el puntero cabeza en NULL
-void inicializarLista(Nodo** cabeza) {
-    *cabeza = NULL;
+void inicializarLista( Nodo** cabeza ) {
+    *cabeza = NULL ;                // La lista comienza vacía
 }
 
 // b. Elimina todos los nodos de la lista y libera la memoria utilizada
-void eliminarLista(Nodo** cabeza) {
-    Nodo* actual = *cabeza;
-    Nodo* temp;
-    while (actual != NULL) {
-        temp = actual;
-        actual = actual->siguiente;
+void eliminarLista( Nodo** cabeza ) {
+    Nodo* actual = *cabeza ;   // Puntero para recorrer la lista
+    Nodo* temp             ;   // Puntero temporal para liberar nodos
+
+    while( actual != NULL ) {
+        temp   = actual              ;
+        actual = actual -> siguiente ;
+        
         free(temp); // Libera el nodo actual
     }
     *cabeza = NULL; // Deja la lista vacía
@@ -35,6 +37,7 @@ void eliminarLista(Nodo** cabeza) {
 // c. Agrega un nuevo nodo al principio de la lista con el valor dado
 void agregarAlPrincipio(Nodo** cabeza, int valor) {
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
+
     if (nuevo == NULL) return; // Verifica si la memoria fue asignada correctamente
     nuevo->dato = valor;
     nuevo->siguiente = *cabeza;

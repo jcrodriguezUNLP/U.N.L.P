@@ -1,39 +1,59 @@
+// ==============================================================================
+// PROBLEMA 2: ESTADÍSTICAS DE UN ARREGLO
+// ==============================================================================
+// Desarrolle 3 funciones independientes que:
+//     reciban:
+//         un arreglo unidimensional de tipo float.
+//     retornen:
+//         a. el promedio de sus valores.
+//         b. el mínimo de sus valores.
+//         c. la posición del máximo de sus valores.
+// ==============================================================================
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include <float.h> // Necesario si usas FLT_MAX
 
-#define ARRAY_SIZE 10
+float calcularPromedio( float vector[] , int dimL ) {
+    float suma = 0.0f ;
 
-float promedio( float numeros[] , int n ) {
-    float suma = 0.0 ;
-
-    for (int i = 0 ; i < n ; i++ ) {
-        suma += numeros[ i ] ;
+    // Protección defensiva para evitar división por cero
+    if( dimL <= 0 ) {
+        return( 0.0f ) ;
     }
 
-    return( suma / n ) ;
+    // Recorremos el arreglo desde el índice 0 hasta el último válido (dimL - 1)
+    for( int i = 0 ; i < dimL ; i++ ) {
+        suma += vector[ i ] ;
+    }
+
+    return( (suma / dimL) ) ;
 }
 
-float minimo( float numeros[] , int n ) {
-    float min = numeros[ 0 ] ;
+float min( float vector[] , int dimL ) {
+    if( dimL <= 0 ){
+        return( FLT_MAX ) ;
+    }
+    
+    float min = vector[ 0 ] ;
 
-    for (int i = 1 ; i < n ; i++ ) {
-        if ( numeros[ i ] < min ) {
-            min = numeros[ i ] ;
+    for( int i = 1 ; i < dimL ; i++ ) {
+        if( vector[ i ] < min ) {
+            min = vector[ i ] ;
         }
     }
 
     return( min ) ;
 }
 
-// posicion del valor maximo
-int posMaximo( float numeros[] , int n ) {
-    float max = numeros[ 0 ] ;
+int calcularPosMax( float vector[] , int dimL ) {
+    if( dimL <= 0 ){
+        return( -1 ) ;
+    }
+    
     int pos = 0 ;
 
-    for( int i = 1 ; i < n ; i++ ) {
-        if( max < numeros[ i ] ) {
-            max = numeros[ i ] ;
+    for( int i = 1 ; i < dimL ; i++ ) {
+        if( vector[ pos ] < vector[ i ] ) {
             pos = i ;
         }
     }
@@ -41,38 +61,42 @@ int posMaximo( float numeros[] , int n ) {
     return( pos ) ;
 }
 
-
 int main() {
-    // inicializar la semilla del generador de numeros aleatorios
-    // usando la hora actual como semilla
-    srand( time(NULL) ) ;
+    // --- 2. INICIALIZACIÓN ---
+    // Vector de prueba con casos variados (negativos, decimales, etc.)
+    float vectorPrueba[] = { 12.5f , -4.2f , 8.9f , 45.1f , 2.1f , 0.0f , 45.1f } ;
     
-    float numeros[ ARRAY_SIZE ] ;
+    // Calculamos la dimensión dinámica para no hardcodear el número
+    int dimL = ( sizeof( vectorPrueba ) / sizeof( vectorPrueba[0] ) ) ;
 
-    // inicializar el array con numeros enteros aleatorios
-    for (int i = 0 ; i < ARRAY_SIZE ; i++ ) {
-        numeros[ i ] = rand() ;
+    printf( "--- Suite de Pruebas: Estadisticas de Arreglo ---\n\n" ) ;
+
+    // --- 3. PROCESAMIENTO Y SALIDA ---
+    // Imprimimos el vector para tener contexto visual en la consola
+    printf( "Vector analizado: [ " ) ;
+    for( int i = 0 ; i <= (dimL - 1) ; i++ ) {
+        printf( "%.1f " , vectorPrueba[ i ] ) ;
     }
+    printf( "]\n\n" ) ;
 
-    // imprimir el array
-    printf( "\nArray de numeros aleatorios:\n" ) ;
-
-    for (int i = 0 ; i < ARRAY_SIZE ; i++ ) {
-        printf( "\nIndice %d: %f " , i , numeros[ i ] ) ;
+    // Test A: Promedio
+    printf( "    -> Promedio de los valores : %.2f\n" , calcularPromedio( vectorPrueba , dimL ) ) ;
+    
+    // Test B: Mínimo (con validación defensiva)
+    float valorMinimo = min( vectorPrueba , dimL ) ;
+    if( valorMinimo != FLT_MAX ) {
+        printf( "    -> Valor minimo            : %.2f\n" , valorMinimo ) ;
+    } else {
+        printf( "    -> Valor minimo            : [ERROR] Arreglo vacio.\n" ) ;
     }
-
-    // calcular el promedio
-    float prom = promedio( numeros , ARRAY_SIZE ) ;
-    printf( "\n\nEl promedio es: %f" , prom ) ;
-
-    // calcular el minimo
-    float min = minimo( numeros , ARRAY_SIZE ) ;
-    printf( "\n\nEl minimo es: %f" , min ) ;
-
-    // calcular la posicion del maximo
-    int pos = posMaximo( numeros , ARRAY_SIZE ) ;
-    printf( "\n\nLa posicion del maximo es: %d" , pos ) ;
-    printf( "\nEl maximo es: %f" , numeros[ pos ] ) ;
+    
+    // Test C: Posición del Máximo (con validación defensiva)
+    int posMaximo = calcularPosMax( vectorPrueba , dimL ) ;
+    if( posMaximo != -1 ) {
+        printf( "    -> Posicion del maximo     : Indice %d (Valor: %.2f)\n" , posMaximo , vectorPrueba[ posMaximo ] ) ;
+    } else {
+        printf( "    -> Posicion del maximo     : [ERROR] Arreglo vacio o invalido.\n" ) ;
+    }
 
     printf( "\n" ) ;
 

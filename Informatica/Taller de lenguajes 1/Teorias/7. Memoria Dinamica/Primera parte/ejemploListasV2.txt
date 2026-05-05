@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/// Definicion de tipos
+typedef int dato_t;
+struct nodo{
+    dato_t dato;
+    struct nodo * sig;
+};
+//typedef struct nodo nodo_t; // podemos definir nodo si queremos
+typedef struct nodo * lista;
+
+/// prototipos
+/*
+    notar que las funciones que potencialmente pueden modificar
+    el inicio de la lista reciben como parametro "lista *", ya que
+    se trata de un pasaje "por referencia". Por eso definimos a la
+    lista como puntero a nodo (y no solo como un nodo), con el fin de
+    visualizar mejor cuando se trata de una referencia al puntero inicial.
+ */
+lista inicializar();
+void agregar_inicio(lista * l, dato_t dato_nuevo);
+void mostrar(lista l);
+void eliminar(lista * l);
+
+/// Programa principal
+int main()
+{
+    /// Inicializar lista, en este caso solo asigna NULL
+    lista l = inicializar();
+
+    /// Agregar al inicio verificando direccion inicial de la lista
+    printf("Agregando elementos de la lista...\n");
+    printf("1 Inicio l: %p\n", l);
+    agregar_inicio(&l, 1);
+    printf("2 Inicio l: %p\n", l);
+    agregar_inicio(&l, 2);
+    printf("3 Inicio l: %p\n", l);
+    agregar_inicio(&l, 3);
+    printf("4 Inicio l: %p\n", l);
+
+    /// Visualizacion de la lista completa
+    printf("Mostrar lista: ");
+    mostrar(l);
+
+    /// Eliminar la lista (deja en NULL (0) a l)
+    printf("Eliminando la lista (liberando espacio en memoria)...");
+    eliminar(&l);
+    printf("\n5 Inicio l: %p\n", l);
+
+    return 0;
+}
+
+lista inicializar(){
+    return NULL;
+}
+
+void agregar_inicio(lista * l, dato_t dato_nuevo){
+    /*
+        Recordatorio: enviamos
+     */
+    struct nodo * nuevo = (struct nodo *)malloc(1*sizeof(struct nodo));
+    ///lista nuevo = (lista)malloc(1*sizeof(struct nodo)); // otra opcion
+    nuevo->dato = dato_nuevo;
+    nuevo->sig = (*l);
+
+    (*l) = nuevo;
+}
+
+void mostrar(lista l){
+    /*
+        Recordatorio: en este caso no requerimos pasar
+        la lista por referencia, ya que no modificaremos
+        el puntero inicial -> por eso se puede hacer el
+        desplazamiento con l sin riesgo de perder el
+        inicio de la lista
+     */
+    while(l!=NULL){
+        // imprimir dato
+        printf("%d -> ", l->dato);
+        // avanzar en la lista
+        l = l->sig;
+    }
+    printf("(NULL)\n");
+}
+
+void eliminar(lista * l){
+    /*
+        Recordatorio: en este caso si se envia por referencia
+        porque el puntero inicial de la lista debe quedar en NULL
+        indicando que la lista esta vacia
+     */
+    lista aux;
+    while((*l)!=NULL){
+        aux = (*l);
+        (*l) = (*l)->sig;
+        free(aux);
+    }
+}

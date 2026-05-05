@@ -1,61 +1,94 @@
+// ==============================================================================
+// PROBLEMA 3: MULTIPLICACIÓN ESCALAR DE MATRIZ
+// ==============================================================================
+// Desarrolle una función que:
+//     reciba:
+//         una matriz A (de m filas y n columnas) y un número escalar c.
+//     modifique:
+//         la matriz A, almacenando en ella el resultado de la multiplicación escalar (c * A).
+//     nota matemática:
+//         se debe multiplicar cada entrada de A por c.
+// ==============================================================================
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-#define ANCHO 10
-#define ALTO 10
-
-// llenar la matriz con numeros aleatorios entre 0 y 10
-void llenar_matriz( int matriz[][ANCHO] , int alto ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            matriz[ i ][ j ] = ( rand() % 4 ) ;
-        }
+void imprimirMatriz( int m , int n , int matriz[ m ][ n ] ) {
+    
+    // 1. Renderizar cabecera de columnas (Índices superiores)
+    printf( "      |" ) ;
+    for( int columna = 0 ; columna < n ; columna++ ) {
+        printf( " %3d |" , columna ) ;
     }
-}
+    printf( "\n" ) ;
 
-// funcion para imprimir la matriz
-void imprimir_matriz( int matriz[][ANCHO] , int alto ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            printf( "%d ", matriz[ i ][ j ] ) ;
+    // 2. Renderizar línea separadora dinámica
+    printf( "------+" ) ;
+    for( int columna = 0 ; columna < n ; columna++ ) {
+        printf( "-----+" ) ;
+    }
+    printf( "\n" ) ;
+
+    // 3. Renderizar cuerpo de la matriz
+    for( int fila = 0 ; fila < m ; fila++ ) {
+        
+        // Índice de la fila actual (Borde izquierdo)
+        printf( "| %3d |" , fila ) ; 
+        
+        // Datos de la fila
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            printf( " %3d |" , matriz[ fila ][ columna ] ) ;
+        }
+        printf( "\n" ) ;
+        
+        printf( "------+" ) ;
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            printf( "-----+" ) ;
         }
         printf( "\n" ) ;
     }
+
+    printf( "\n" ) ;
 }
 
-// multiplicar la matriz por un escalar
-void multiplicar_matriz( int matriz[][ANCHO] , int alto , int escalar ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            matriz[ i ][ j ] *= escalar ;
+void multiplicarMatrizPorEscalar( int m , int n , int matriz[m][n] , int c ) {
+    // Protección defensiva para evitar procesar dimensiones inválidas
+    if( m <= 0 || n <= 0 ) {
+        return ;
+    }
+
+    for( int fila = 0 ; fila < m ; fila++ ) {
+        for( int columna = 0 ; columna < n ; columna++ ){
+            matriz[ fila ][ columna ] *= c ;
         }
     }
 }
 
 int main() {
-    // inicializar la semilla del generador de numeros aleatorios
-    // usando la hora actual como semilla
-    srand( time(NULL) ) ;
+    // --- 2. INICIALIZACIÓN ---
+    int m = 2 ; // Filas
+    int n = 3 ; // Columnas
+    int c = 2 ; // Escalar
 
-    // matriz
-    int matriz[ ALTO ][ ANCHO ] ;
+    // Matriz del ejemplo del PDF
+    int matrizA[ 2 ][ 3 ] = {
+        { 1 ,  8 , -3 } ,
+        { 4 , -2 ,  5 }
+    } ;
 
-    // llenar la matriz con numeros aleatorios
-    llenar_matriz( matriz , ALTO ) ;
+    printf( "--- Calculadora de Matrices: Escalar --- \n\n" ) ;
 
-    // imprimir la matriz
-    printf( "\nMatriz original:\n\n" ) ;
-    imprimir_matriz( matriz , ALTO ) ;
+    // --- 3. PROCESAMIENTO ---
+    printf( "Matriz Original A ( %d x %d ):\n" , m , n ) ;
+    imprimirMatriz( m , n , matrizA ) ;
 
-    // multiplicar la matriz por un escalar
-    int escalar = 2 ;
-    multiplicar_matriz( matriz , ALTO , escalar ) ;
+    // La matriz decae a puntero y se modifica in-place
+    multiplicarMatrizPorEscalar( m , n , matrizA , c ) ;
 
-    // imprimir la matriz multiplicada
-    printf( "\nMatriz multiplicada por %d:\n\n", escalar ) ;
-    imprimir_matriz( matriz , ALTO ) ;
+    // --- 4. SALIDA ---
+    printf( "\nMatriz A modificada ( %d * A ):\n" , c ) ;
+    imprimirMatriz( m , n , matrizA ) ;
 
     printf( "\n" ) ;
+
     return( 0 ) ;
 }

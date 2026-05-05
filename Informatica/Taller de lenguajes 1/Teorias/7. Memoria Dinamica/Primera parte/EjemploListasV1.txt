@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+/// Definicion de tipos
+typedef int dato_t;
+struct nodo{
+    dato_t dato;
+    struct nodo * sig;
+};
+//typedef struct nodo nodo_t; // podemos definir nodo si queremos
+typedef struct nodo * lista;
+
+/// prototipos
+/*
+    notar que las funciones que potencialmente pueden modificar
+    el inicio de la lista reciben como parametro "lista *", ya que
+    se trata de un pasaje "por referencia". Por eso definimos a la
+    lista como puntero a nodo (y no solo como un nodo), con el fin de
+    visualizar mejor cuando se trata de una referencia al puntero inicial.
+ */
+lista agregar_inicio(lista, dato_t );
+void mostrar(lista );
+void eliminar(lista );
+
+/// Programa principal
+int main()
+{   int i;
+    /// Inicializar lista indicando que no tiene elementos
+    lista l = NULL;
+
+    /// Agregar al inicio verificando direccion inicial de la lista
+    printf("Agregando elementos de la lista...\n");
+
+    for (i=1; i<=10; i++) {
+        printf("%2d Inicio l: %p\n", i, l);
+        l = agregar_inicio(l, i);
+    }
+
+    /// Visualizacion de la lista completa
+    printf("Mostrar lista: ");
+    mostrar(l);
+
+    /// Eliminar la lista (deja en NULL (0) a l)
+    printf("Eliminando la lista (liberando espacio en memoria)...");
+    eliminar(l);
+    return 0;
+}
+
+
+lista agregar_inicio(lista l, dato_t dato_nuevo){
+
+    struct nodo * nuevo = (struct nodo *)malloc(1*sizeof(struct nodo));
+    ///lista nuevo = (lista)malloc(1*sizeof(struct nodo)); // otra opcion
+    nuevo->dato = dato_nuevo;
+    nuevo->sig = l;
+
+    return(nuevo);
+}
+
+void mostrar(lista l){
+    /*
+        Recordatorio: el inicio de la lista se pasa por copia,
+        por eso se puede hacer el desplazamiento con l
+        sin riesgo de perder el inicio de la lista
+     */
+    while(l!=NULL){
+        // imprimir dato
+        printf("%d -> ", l->dato);
+        // avanzar en la lista
+        l = l->sig;
+    }
+    printf("NULL \n");
+ }
+
+void eliminar(lista l){
+    /*
+        Recordatorio: para borrar la lista debe recorrerse
+        secuencialmente liberando el espacio reservado para
+        cada elemento
+     */
+    lista aux;
+    while( l !=NULL){
+        aux = l;
+        l = l->sig;
+        free(aux);
+    }
+   printf("\n Memoria liberada! l: %p\n", l);
+}

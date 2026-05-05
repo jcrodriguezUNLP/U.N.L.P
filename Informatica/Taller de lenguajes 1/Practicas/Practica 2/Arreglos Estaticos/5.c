@@ -1,67 +1,97 @@
+// ==============================================================================
+// PROBLEMA 5: SUMA DE MATRICES
+// ==============================================================================
+// Desarrolle una función que:
+//     reciba:
+//         tres matrices A, B y C de las mismas dimensiones (m x n).
+//     modifique:
+//         la matriz C, almacenando en ella el resultado de la suma de A y B.
+//     nota matemática:
+//         (A+B)i,j = Ai,j + Bi,j
+// ==============================================================================
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-#define ANCHO 3
-#define ALTO 3
-
-// llenar la matriz con numeros aleatorios entre 0 y 10
-void llenar_matriz( int matriz[][ANCHO] , int alto ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            matriz[ i ][ j ] = ( rand() % 4 ) ; // Números aleatorios entre 0 y 3
-        }
+// --- COMPONENTE UI: Renderizador Genérico ---
+void imprimirMatriz( int m , int n , int matriz[ m ][ n ] ) {
+    printf( "      |" ) ;
+    for( int columna = 0 ; columna < n ; columna++ ) {
+        printf( " %3d |" , columna ) ;
     }
-}
+    printf( "\n" ) ;
 
-// funcion para imprimir la matriz
-void imprimir_matriz( int matriz[][ANCHO] , int alto ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            printf( "%d ", matriz[ i ][ j ] ) ;
+    printf( "------+" ) ;
+    for( int columna = 0 ; columna < n ; columna++ ) {
+        printf( "-----+" ) ;
+    }
+    printf( "\n" ) ;
+
+    for( int fila = 0 ; fila < m ; fila++ ) {
+        printf( "| %3d |" , fila ) ; 
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            printf( " %3d |" , matriz[ fila ][ columna ] ) ;
+        }
+        printf( "\n" ) ;
+        
+        printf( "------+" ) ;
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            printf( "-----+" ) ;
         }
         printf( "\n" ) ;
     }
+    printf( "\n" ) ;
 }
 
-// sumar dos matrices
-void sumarMatrices( int A[][ANCHO] , int B[][ANCHO] , int C[][ANCHO] , int alto ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            C[ i ][ j ] = A[ i ][ j ] + B[ i ][ j ] ;
+// --- FUNCIÓN CORE ---
+void sumarMatrices( int m , int n , int A[ m ][ n ] , int B[ m ][ n ] , int C[ m ][ n ] ) {
+    
+    // Protección defensiva
+    if( m <= 0 || n <= 0 ) return ;
+
+    for( int fila = 0 ; fila < m ; fila++ ) {
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            
+            // CORRECCIÓN: Suma atómica utilizando los iteradores espaciales
+            C[ fila ][ columna ] = A[ fila ][ columna ] + B[ fila ][ columna ] ;
+            
         }
     }
 }
 
 int main() {
-    // inicializar la semilla del generador de numeros aleatorios
-    srand( time(NULL) ) ;
+    // --- 1. INICIALIZACIÓN ---
+    int m = 2 ; // Filas
+    int n = 3 ; // Columnas
 
-    // Declarar las matrices
-    int A[ ALTO ][ ANCHO ] ;
-    int B[ ALTO ][ ANCHO ] ;
-    int C[ ALTO ][ ANCHO ] ;
+    // Matriz A (Basada en el ejemplo de la Práctica 2)
+    int matrizA[ 2 ][ 3 ] = {
+        { 1 , 3 , 1 } ,
+        { 1 , 0 , 0 }
+    } ;
 
-    // Llenar las matrices A y B con números aleatorios
-    llenar_matriz( A , ALTO ) ;
-    llenar_matriz( B , ALTO ) ;
+    // Matriz B (Basada en el ejemplo de la Práctica 2)
+    int matrizB[ 2 ][ 3 ] = {
+        { 0 , 0 , 5 } ,
+        { 7 , 5 , 0 }
+    } ;
 
-    // Imprimir la matriz A
-    printf( "\nMatriz A:\n\n" ) ;
-    imprimir_matriz( A , ALTO ) ;
+    // Buffer de Destino: Matriz C inicializada en 0
+    int matrizC[ 2 ][ 3 ] = { 0 } ;
 
-    // Imprimir la matriz B
-    printf( "\nMatriz B:\n\n" ) ;
-    imprimir_matriz( B , ALTO ) ;
+    printf( "--- Calculadora de Matrices: Suma (A + B = C) ---\n\n" ) ;
 
-    // Sumar las matrices A y B, y almacenar el resultado en C
-    sumarMatrices( A , B , C , ALTO ) ;
+    // --- 2. PROCESAMIENTO Y SALIDA ---
+    printf( "Matriz A:\n" ) ;
+    imprimirMatriz( m , n , matrizA ) ;
 
-    // Imprimir la matriz resultante C
-    printf( "\nMatriz C (resultado de A + B):\n\n" ) ;
-    imprimir_matriz( C , ALTO ) ;
+    printf( "Matriz B:\n" ) ;
+    imprimirMatriz( m , n , matrizB ) ;
 
-    printf( "\n" ) ;
-    
+    // Ejecutamos la función de suma pasando los punteros (Array Decay)
+    sumarMatrices( m , n , matrizA , matrizB , matrizC ) ;
+
+    printf( "Resultado - Matriz C ( A + B ):\n" ) ;
+    imprimirMatriz( m , n , matrizC ) ;
+
     return( 0 ) ;
 }

@@ -1,69 +1,64 @@
-// Investigue los operadores del lenguaje C.
-// Enumérelos y descríbalos según las siguientes categorías: 
-//  - aritméticos
-//  - relacionales
-//  - lógicos
-//  - de bits
-//  - asignación
-//  - condicional
+// ==============================================================================
+// TEORÍA 4: CATEGORÍAS DE OPERADORES
+// ==============================================================================
+//
+// Investigue y Tarea:
+//     - Enumere y describa los operadores de C según las siguientes categorías:
+//         1. Aritméticos
+//         2. Relacionales
+//         3. Lógicos
+//         4. De bits
+//         5. Asignación
+//         6. Condicional
+// ==============================================================================
 
-// ARITMÉTICOS:
-//  +  : Suma
-//  -  : Resta
-//  *  : Multiplicación
-//  /  : División
-//  %  : Módulo (solo para enteros)
-//  ++ : Incremento (pre/post: ++a vs a++)
-//  -- : Decremento (pre/post: --a vs a--)
-//  -  : Negación (unario)
-//  +  : Identidad (unario)
-//  Precedencia alta: *, /, % antes que +, -
+#include <stdio.h>
 
-// RELACIONALES:
-//  == : Igualdad
-//  != : Desigualdad
-//  >  : Mayor que
-//  <  : Menor que
-//  >= : Mayor o igual que
-//  <= : Menor o igual que
-//  Devuelven 1 (verdadero) o 0 (falso). Precedencia menor que aritméticos.
-//  Cuidado: No confundir = (asignación) con == (comparación).
-//  Para strings usar strcmp(), no == directamente.
+int main() {
+    // --- 1. RESPUESTAS TEÓRICAS: REFERENCIA DE OPERADORES ---
+    //
+    // 1. Operadores Aritméticos (Matemática básica):
+    //    +  : Suma.
+    //    -  : Resta.
+    //    * : Multiplicación.
+    //    /  : División (OJO: si ambos son enteros, trunca los decimales).
+    //    %  : Módulo (Retorna el resto de una división entera).
+    //    ++ : Incremento (Suma 1 a la variable de forma atómica).
+    //    -- : Decremento (Resta 1 a la variable de forma atómica).
+    //
+    // 2. Operadores Relacionales (Comparación, retornan 1/True o 0/False):
+    //    == : Igual a (Cuidado: no confundir con el '=' de asignación).
+    //    != : Distinto de.
+    //    >  : Mayor que.
+    //    <  : Menor que.
+    //    >= : Mayor o igual que.
+    //    <= : Menor o igual que.
+    //
+    // 3. Operadores Lógicos (Álgebra de Boole, conectan condiciones):
+    //    && : AND (Y). Verdadero SOLO si ambas condiciones son verdaderas.
+    //    || : OR (O). Verdadero si al menos UNA condición es verdadera.
+    //    !  : NOT (Negación). Invierte el valor de verdad (Ej: !1 es 0).
+    //
+    // 4. Operadores de Bits (Manipulación a nivel binario, se ven en Arqui):
+    //    &  : AND a nivel de bits.
+    //    |  : OR a nivel de bits.
+    //    ^  : XOR (OR Exclusivo). Verdadero solo si los bits son distintos.
+    //    ~  : NOT (Complemento a 1). Invierte todos los bits de la variable.
+    //    << : Desplazamiento a la izquierda (Multiplica por potencias de 2).
+    //    >> : Desplazamiento a la derecha (Divide por potencias de 2).
+    //
+    // 5. Operadores de Asignación (Guardan o actualizan valores en memoria):
+    //    =  : Asignación simple (Ej: x = 5).
+    //    += : Suma y asigna (Ej: x += 2 es exactamente igual a x = x + 2).
+    //    -= : Resta y asigna.
+    //    *= : Multiplica y asigna.
+    //    /= : Divide y asigna.
+    //    %= : Calcula el módulo y lo asigna.
+    //    (También existen versiones para bits: &=, |=, ^=, <<=, >>=)
+    //
+    // 6. Operador Condicional (El único operador ternario de C):
+    //    ? :  -> Sintaxis: (condición) ? valor_si_verdadero : valor_si_falso
+    //            Es una forma matemáticamente compacta de escribir un if/else.
 
-// LÓGICOS:
-//  && : AND lógico (evaluación corta: si primer operando es falso, no evalúa el segundo)
-//  || : OR lógico (evaluación corta: si primer operando es verdadero, no evalúa el segundo)
-//  !  : NOT lógico
-//  Operan con "verdadero" (≠0) y "falso" (=0). Precedencia: ! > && > ||
-//  Ejemplo: (a > 0) && (b < 10) - solo evalúa b si a > 0 es verdadero.
-
-// DE BITS:
-//  &  : AND a nivel de bits
-//  |  : OR a nivel de bits
-//  ^  : XOR a nivel de bits
-//  ~  : NOT a nivel de bits (complemento)
-//  << : Desplazamiento a la izquierda (multiplica por 2^n)
-//  >> : Desplazamiento a la derecha (divide por 2^n)
-//  Solo para tipos enteros. Útiles para manipulación de flags y optimización.
-//  Ejemplo: x << 2 equivale a x * 4, x >> 1 equivale a x / 2.
-
-// DE ASIGNACIÓN:
-//  =   : Asignación simple (evalúa de derecha a izquierda)
-//  +=  : Suma y asigna (a += b equivale a a = a + b)
-//  -=  : Resta y asigna
-//  *=  : Multiplica y asigna
-//  /=  : Divide y asigna
-//  %=  : Módulo y asigna
-//  &=  : AND de bits y asigna
-//  |=  : OR de bits y asigna
-//  ^=  : XOR de bits y asigna
-//  <<= : Desplaza izq. y asigna
-//  >>= : Desplaza der. y asigna
-//  Precedencia más baja que casi todos los demás operadores.
-
-// CONDICIONAL:
-//  ?: : Operador ternario
-//  Sintaxis: condición ? valor_si_verdadero : valor_si_falso
-//  Ejemplo: int max = (a > b) ? a : b;
-//  Evalúa de derecha a izquierda. Puede anidarse pero afecta legibilidad.
-//  Útil para asignaciones condicionales simples.
+    return( 0 ) ;
+}

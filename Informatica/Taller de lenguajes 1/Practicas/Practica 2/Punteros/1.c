@@ -1,75 +1,58 @@
+// ==============================================================================
+// PROBLEMA 1: ESTADÍSTICAS POR REFERENCIA
+// ==============================================================================
+// Desarrolle una única función que:
+//     reciba:
+//         un arreglo unidimensional de tipo float. 
+//     retorne (vía punteros):
+//         el promedio
+//         el mínimo
+//         posición del máximo de sus valores
+//     nota:
+//         es la refactorización del Problema 2 usando paso por referencia.
+// ==============================================================================
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-#define ARRAY_SIZE 10
+void procesarArreglo( float array[] , int dimL , float* DM_Prom , float* DM_ValMin , int* DM_PosMax ) {
+    if( 0 == dimL ) {
+        *DM_Prom   = 0  ;
+        *DM_ValMin = 0  ;
+        *DM_PosMax = -1 ;
 
-// imprimir el array
-void imprimirArray( float numeros[] , int n ) {
-    printf( "\nArray de numeros aleatorios:\n" ) ;
-    
-    for( int i = 0 ; i < n ; i++ ) {
-        printf( "\nIndice %02d: %.2f" , i, numeros[ i ] ) ;
+        return ;
     }
-}
 
-//llenar el array con números aleatorios
-void llenarArray( float numeros[] , int n ) {
-    for( int i = 0 ; i < n ; i++ ) {
-        numeros[ i ] = rand() % 100 ; // Números aleatorios entre 0 y 99
-    }
-}
+    float n = array[ 0 ] ;
 
-// Función que calcula el promedio , el mínimo y la posición del máximo
-void calcularEstadisticas( float numeros[] , int n , float *promedio , float *minimo , int *posMaximo ) {
-    float suma = 0.0 ;
-    *minimo = numeros[0] ;
-    float max = numeros[0] ;
-    *posMaximo = 0 ;
+    float sumaTotal = n ;
 
-    for( int i = 0 ; i < n ; i++ ) {
-        suma += numeros[ i ] ;
+    float valMin = n ;
 
-        if( numeros[ i ] < *minimo ) {
-            *minimo = numeros[ i ] ;
-         }
+    float valMax = n ;
+    int   posMax = 0 ;
 
-        if( numeros[ i ] > max ) {
-            max = numeros[ i ] ;
-            *posMaximo = i;
+    for( int i = 1 ; i < dimL ; i++ ) {
+        n = array[ i ] ;
+
+        sumaTotal += n ;
+
+        if( n < valMin ) {
+            valMin = n ;
+        }
+        
+        if( valMax < n ) {
+            valMax = n ;
+            posMax = i ;
         }
     }
 
-    *promedio = suma / n ;
+    *DM_Prom   = ( sumaTotal / dimL ) ;
+    *DM_ValMin = valMin               ;
+    *DM_PosMax = posMax               ;
 }
 
 int main() {
-    // Inicializar la semilla del generador de números aleatorios
-    srand( time( NULL) ) ;
 
-    float numeros[ ARRAY_SIZE ] ;
-
-    // Llenar el array con números aleatorios
-    llenarArray( numeros , ARRAY_SIZE ) ;
-
-    // Imprimir el array
-    imprimirArray( numeros , ARRAY_SIZE ) ;
-
-    // Variables para almacenar los resultados
-    float prom ;
-    float min ;
-    int posMax ;
-
-    // Llamar a la función para calcular las estadísti cas
-    calcularEstadisticas( numeros , ARRAY_SIZE , &prom , &min , &posMax ) ;
-
-    // Imprimir los resultados
-    printf( "\n\nEl promedio es: %.2f" , prom ) ;
-    printf( "\nEl minimo es: %.2f" , min ) ;
-    printf( "\nLa posicion del maximo es: %d" , posMax ) ;
-    printf( "\nEl maximo es: %.2f" , numeros[ posMax ] ) ;
-
-    printf( "\n" ) ;
-
-    return 0 ;
+    return( 0 ) ;
 }

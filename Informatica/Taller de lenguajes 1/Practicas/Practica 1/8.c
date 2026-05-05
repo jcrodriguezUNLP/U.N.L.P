@@ -1,120 +1,90 @@
-// Identifique y corrija los errores en cada uno de los siguientes códigos
-// Puede haber más de uno.
+// ==============================================================================
+// ANÁLISIS 8: DEBUGGING BÁSICO
+// ==============================================================================
+// Contexto:
+//     - Cuatro fragmentos de código con errores de sintaxis o lógica.
+//
+// Tarea:
+//     - Identifique y corrija los errores en cada bloque.
+// ==============================================================================
 
 #include <stdio.h>
 
 int main() {
-    // a.
-        int edad ;
-        
-        if( edad >= 40 ) ; 
-            printf( "Tiene %d años o más" , &40 ) ; 
-        else 
-            printf( "Tiene menos de %d años" , &40 ) ;
     
-        // explicación de los errores:
-        // 1. La variable 'edad' no está inicializada antes de usarse en la condición if.
-        //    Se debe leer un valor para 'edad' usando scanf.
-        // 2. Hay un punto y coma (;) después de la condición if, lo que termina la instrucción if prematuramente.
-        //    Esto hace que el bloque if siempre se ejecute, independientemente de la condición
-        // 3. En los printf, se está usando '&40' en lugar de '40'. El operador '&' obtiene la dirección de memoria,
-        //    pero aquí se quiere imprimir el valor literal 40.
-        //    como es constante, no es necesario usar un especificador de formato con variable.
-        //    Debería ser simplemente '40'.
-        // 4. Falta un salto de línea '\n' al final de los mensajes para mejor formato en la salida.
-        // 5. Aunque no es un error, es buena práctica usar llaves {} para delimitar los bloques if y else, incluso si contienen una sola línea.
-        //    Esto mejora la legibilidad y evita errores si se agregan más líneas en el futuro.
-
-        // corrección:
-        int edad ;
-
-        scanf( "%d" , &edad ) ;
-
-        if( 40 <= edad ) { 
-            printf( "Tiene 40 años o más\n" ) ; 
-        } else { 
+    // ==========================================================================
+    // BLOQUE A
+    // ==========================================================================
+    printf( "--- Bloque A ---\n" ) ;
+    {
+        // ERROR 1: 'edad' declarada pero no inicializada (basura en memoria).
+        int edad = 45 ; 
+        
+        // ERROR 2: Punto y coma (;) erróneo después de la condición del if.
+        if( 40 <= edad ) {
+            // ERROR 3: Uso de '&40'. No se puede obtener la dirección de memoria 
+            // de un literal. Se pasa el valor directo.
+            printf( "Tiene 40 años o mas\n" ) ; 
+        } else {
             printf( "Tiene menos de 40 años\n" ) ;
         }
- 
-    // b.
-        int total ;
+    }
 
+    // ==========================================================================
+    // BLOQUE B
+    // ==========================================================================
+    printf( "\n--- Bloque B ---\n" ) ;
+    {
+        // ERROR 1: 'total' no estaba inicializada en 0.
+        int total = 0 ;
         int x = 1 ;
 
-        while( x <= 10 ) { 
+        // ERROR 2: Se abría el bloque con '(' en lugar de '{'.
+        while( x <= 10 ) {
             total += x ;
-            
-            ++x ; 
+            ++x ;
         }
-
-        printf( "Total = %f" , total ) ; 
         
-        // explicación de los errores:
-        // 1. La variable 'total' no está inicializada antes de usarse.
-        // 2. El formato de printf para 'total' es incorrecto. 'total' es un entero, no un flotante.
-        //    Debería usar '%d' en lugar de '%f'.
-        // 3. Falta un salto de línea '\n' al final del mensaje para mejor formato en la salida.
-        // 4. Aunque no es un error, es buena práctica usar llaves {} para delimitar los bloques while, incluso si contienen una sola línea.
-        //    Esto mejora la legibilidad y evita errores si se agregan más líneas en el futuro.
-
-        // corrección:
-        int total = 0 ;
-        int     x = 1 ;
-
-        while( x <= 10 ) { 
-            total += x ;
-            
-            ++x ; 
-        }
-
+        // ERROR 3: Se usaba '%f' (float) para imprimir una variable 'int'.
         printf( "Total = %d\n" , total ) ;
+    }
 
-    // c.
-        int valor ;
-
-        scanf( "%d" , &valor ) ;
-
-        switch( valor % 2 ) { 
-            case 0:
-                printf( "El valor es par" ) ; 
-            case 1:
-                printf( "El valor es impar" ) ;    
-        }
+    // ==========================================================================
+    // BLOQUE C
+    // ==========================================================================
+    printf( "\n--- Bloque C ---\n" ) ;
+    {
+        int valor = 4 ; // Forzado a 4 para testear sin detener la ejecución
         
-        // explicación de los errores:
-        // 1. Falta la instrucción 'break;' al final de cada caso en el switch.
-        //    Sin los 'break;', si se cumple un caso, se ejecutarán todos los casos siguientes (fallthrough).
-        //    Esto significa que si 'valor' es par, también imprimirá "El valor es impar".
-        // 2. Falta un salto de línea '\n' al final de los mensajes para mejor formato en la salida.
-        // 3. Aunque no es un error, sería más claro usar 'default' para manejar cualquier otro caso inesperado.
-        //    En este caso no es estrictamente necesario porque el módulo 2 solo puede dar 0 o 1, pero es una buena práctica.
-
-        // correcion: 
-        int valor ;
-
-        scanf( "%d" , &valor ) ;
-
-        switch( valor % 2 ) { 
-            case 0:
-                printf( "El valor es par\n" ) ; 
-                break ;
-            case 1:
+        // ERROR 1: Caracteres '(' y '}' mal ubicados rompiendo la sintaxis.
+        switch( valor % 2 ) {
+            case 0: 
+                printf( "El valor es par\n" ) ;
+                // ERROR 2: Falta de 'break' provocaría "fall-through" al case 1.
+                break ; 
+            case 1: 
                 printf( "El valor es impar\n" ) ;
                 break ;
-            default:
-                printf( "Valor inesperado\n" ) ;
-                break ; 
         }
+    }
 
-
-    // d.
-        int x ;
-        int y ; 
-
-        scanf( "%d" , x ) ; 
-        scanf( "%d" , y ) ;
-
-        printf( "x + y = %d " , x + y ) ;
+    // ==========================================================================
+    // BLOQUE D
+    // ==========================================================================
+    printf( "\n--- Bloque D ---\n" ) ;
+    {
+        // ERROR 1: Variable separada por coma pero terminada en 'i' (yi) en vez de ';'.
+        int x = 5  ; 
+        int y = 10 ; 
+        
+        // ERROR 2: scanf no tenía los ampersand '&' para pasar por referencia.
+        // Simulamos la lectura directamente asignando los valores arriba.
+        // scanf( "%d" , &x ) ;
+        // scanf( "%d" , &y ) ;
+        
+        // ERROR 3: El printf original no tenía el especificador de formato '%d'.
+        printf( "x + y = %d\n" , (x + y) ) ;
+    }
 
     return( 0 ) ;
 }

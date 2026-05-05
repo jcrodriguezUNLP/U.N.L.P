@@ -1,86 +1,71 @@
-// Investigue los diferentes tipos de datos del lenguaje C y luego responda: 
-//      a.
-//          ¿Qué ocurre cuando asignamos un char a un int? ¿y al revés?
-//              - char a int: Se realiza una extensión automática. El valor ASCII del char 
-//                  se convierte al entero correspondiente (ej: 'a' = 97).
-//              - int a char: Se toma solo el byte menos significativo del int.
-//                  Si el int > 255, se produce overflow y se pierde información.
-//          Ejecute el siguiente código y analice lo que imprime.
-//                  - El código imprime:
-//                      char c = @ (ASCII 64)
-//                      int  x = 97 (ASCII de 'a')
-//              ¿Se presenta algún warning al compilar?
-//                  - Warnings: Algunos compiladores pueden mostrar warnings sobre conversión
-//                      implícita de tipos, especialmente si se habilitan con -Wall.
+// ==============================================================================
+// TEORÍA 2: TIPOS DE DATOS Y OPERADORES
+// ==============================================================================
+// Investigue:
+//     - El operador sizeof.
+//
+// Responda:
+//     1. ¿Qué ocurre al asignar un char a un int y viceversa?
+//     2. ¿Qué diferencia existe entre float y double? ¿Se pueden asignar entre sí?
+//     3. ¿Qué sucede cuando intervienen operadores diferentes? (ej: x=2*32+10/2-1)
+//     4. ¿Para qué sirve sizeof? Verifique el tamaño de los tipos en su máquina.
+// ==============================================================================
 
-//      b.
-//          ¿Qué  diferencia  existe  entre  los  tipos  float  y  double?
-//              - float: Precisión simple (32 bits), aproximadamente 7 dígitos decimales
-//              - double: Precisión doble (64 bits), aproximadamente 15-17 dígitos decimales
-//          ¿se  puede  asignar  entre  si  sin inconvenientes? 
-//              - Asignación float a double: Sin problemas, se extiende automáticamente
-//              - Asignación double a float: Puede haber pérdida de precisión, algunos compiladores pueden mostrar warnings 
+#include <stdio.h>
 
-//      c.
-//          ¿Qué sucede cuando en una operación intervienen operadores diferentes?  
-//              Por ejemplo: x = 2*32+10%2-1;
-//              - Se aplican las reglas de precedencia de operadores y promoción de tipos
-//              - Precedencia: multiplicación (*) y módulo (%) antes que suma (+) y resta (-)
-//              - El ejemplo se evalúa como: x = (2*32) + (10%2) - 1 = 64 + 0 - 1 = 63
-//              - Si hay tipos mixtos, se promocionan automáticamente al tipo "más grande"
-//              - Orden de precedencia: %, *, / (igual precedencia) → +, - (igual precedencia) 
-//              x = 2*32+10%2-1
-//              x = (2*32) + (10%2) - 1
-//              x = 64 + 0 - 1
-//              x = 63
-//      d. 
-//          Investigue el operador sizeof.
-//              ¿Para qué sirve?
-//                  - sizeof: Operador que devuelve el tamaño en bytes de un tipo de dato o variable
-//                  - Se evalúa en tiempo de compilación, no en tiempo de ejecución
-//                  - Sintaxis: sizeof(tipo) o sizeof(variable)
-//                  - Útil para asignación dinámica de memoria y portabilidad 
-//              Luego aplíquelo y verifique el tamaño de los distintos tipos de datos en su máquina. 
-//                  * char       :  1 byte
-//                  * short      :  2 bytes
-//                  * int        :  4 bytes
-//                  * long       :  4 bytes
-//                  * long long  :  8 bytes
-//                  * float      :  4 bytes
-//                  * double     :  8 bytes
-//                  * long double: 16 bytes
+int main() {
+    // --- 1. RESPUESTAS TEÓRICAS ---
+    //
+    // 1. Asignación char <-> int:
+    //    - char a int: Promoción implícita. El valor numérico (ASCII) del 
+    //      carácter se guarda en el entero. No hay pérdida de datos porque un 
+    //      int (4 bytes) tiene espacio de sobra para un char (1 byte).
+    //    - int a char: Truncamiento. El entero se recorta para encajar en 1 byte. 
+    //      Si el entero supera el rango de 8 bits (-128 a 127), se pierde 
+    //      información (los bytes más significativos se descartan).
+    //
+    // 2. Diferencia entre float y double:
+    //    - float: Precisión simple (4 bytes). Guarda aprox. 7 dígitos decimales.
+    //    - double: Precisión doble (8 bytes). Guarda aprox. 15 dígitos decimales.
+    //    - Asignación: Asignar un double a un float es peligroso (pérdida de 
+    //      precisión) y puede tirar un warning. Asignar un float a un double es 
+    //      100% seguro (promoción).
+    //
+    // 3. Operadores diferentes (Precedencia y Asociatividad):
+    //    - C evalúa la expresión siguiendo sus reglas internas matemáticas.
+    //    - Ejemplo: x = 2 * 32 + 10 / 2 - 1 
+    //      Primero se resuelve (* y /): x = 64 + 5 - 1
+    //      Luego se resuelve (+ y -) de izquierda a derecha: x = 68
+    //
+    // 4. Operador sizeof:
+    //    - Es un operador que actúa en TIEMPO DE COMPILACIÓN (no de ejecución). 
+    //    - Retorna la cantidad de bytes que ocupa un tipo de dato o variable en 
+    //      la RAM de la arquitectura actual.
 
 
-#include <stdio.h> 
-
-int main(){ 
-    char c = 'a' ; 
-    int  x = 64  ; 
+    // --- 2. PROCESAMIENTO Y SALIDA: ANÁLISIS DE CÓDIGO (Parte 1) ---
+    printf( "--- Analisis de Asignacion char/int ---\n" ) ;
     
-    printf( "char c = %c\n" , x ) ; 
-    printf( "int  x = %d\n" , c ) ;
+    char c = 'a' ; // En código ASCII, la 'a' minúscula equivale al entero 97
+    int  x = 64  ; // En código ASCII, el 64 equivale al carácter '@'
 
-    printf( "\nmemoria reservada por cada tipo de dato:\n\n" ) ;
+    // El formato del printf (%d o %c) le dice al compilador cómo debe 
+    // interpretar la memoria cruda.
+    printf( "La variable char 'c' ('a') leida como int (%cd) es : %d\n" , '%' , c ) ; 
+    printf( "La variable int  'x' (64 ) leida como char (%cc) es: %c\n"  , '%' , x ) ; 
     
-    printf( "    sizeof( char          ) = %zu byte\n" , sizeof( char          ) ) ;
-    printf( "    sizeof( unsigned char ) = %zu byte\n" , sizeof( unsigned char ) ) ;
     
-    printf( "\n    tipos enteros:\n" ) ;
+    // --- 3. PROCESAMIENTO Y SALIDA: SIZEOF (Parte 4) ---
+    printf( "\n--- Tamaños en memoria (Arquitectura 64-bits WSL/Linux) ---\n" ) ;
     
-    printf( "        sizeof( short              ) = %zu bytes\n" , sizeof( short              ) ) ;
-    printf( "        sizeof( unsigned short     ) = %zu bytes\n" , sizeof( unsigned short     ) ) ;
-    printf( "        sizeof( int                ) = %zu bytes\n" , sizeof( int                ) ) ;
-    printf( "        sizeof( unsigned int       ) = %zu bytes\n" , sizeof( unsigned int       ) ) ;
-    printf( "        sizeof( long               ) = %zu bytes\n" , sizeof( long               ) ) ;
-    printf( "        sizeof( unsigned long      ) = %zu bytes\n" , sizeof( unsigned long      ) ) ;
-    printf( "        sizeof( long long          ) = %zu bytes\n" , sizeof( long long          ) ) ;
-    printf( "        sizeof( unsigned long long ) = %zu bytes\n" , sizeof( unsigned long long ) ) ;
-   
-    printf( "\n    tipos float:\n" ) ;
-   
-    printf( "        sizeof( float       ) = %2zu bytes\n" , sizeof( float      ) ) ;
-    printf( "        sizeof( double      ) = %2zu bytes\n" , sizeof( double     ) ) ;
-    printf( "        sizeof( long double ) = %2zu bytes\n" , sizeof( long double) ) ;
+    // NOTA TÉCNICA: El operador sizeof retorna un dato de tipo 'size_t'.
+    // Para que el flag -Wall no tire un warning por "type mismatch", 
+    // es obligatorio imprimirlo usando el modificador '%zu', no '%d'.
+    
+    printf( "Tamaño de char   : %zu bytes\n" , sizeof( char ) ) ;
+    printf( "Tamaño de int    : %zu bytes\n" , sizeof( int ) ) ;
+    printf( "Tamaño de float  : %zu bytes\n" , sizeof( float ) ) ;
+    printf( "Tamaño de double : %zu bytes\n" , sizeof( double ) ) ;
 
-    return( 0 ) ; 
-} 
+    return( 0 ) ;
+}

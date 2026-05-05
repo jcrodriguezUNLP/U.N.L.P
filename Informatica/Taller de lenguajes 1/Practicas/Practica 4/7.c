@@ -10,12 +10,12 @@
 // Definición de la estructura Nodo para la lista enlazada
 typedef struct Nodo {
     int dato;
-    struct Nodo* sig;
+    struct Nodo *sig;
 } Nodo;
 
 // Inserta un nuevo nodo con el valor dado al final de la lista
-Nodo* insertarFinal(Nodo* lista, int valor) {
-    Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
+Nodo* insertarFinal(Nodo *lista, int valor) {
+    Nodo *nuevo = (Nodo*)malloc(sizeof(Nodo));
     nuevo->dato = valor;
     nuevo->sig = NULL;
     if (lista == NULL) {
@@ -30,11 +30,11 @@ Nodo* insertarFinal(Nodo* lista, int valor) {
 }
 
 // Crea una nueva lista enlazada con el orden invertido de la lista original
-Nodo* invertirLista(Nodo* lista) {
-    Nodo* invertida = NULL;
-    Nodo* aux = lista;
+Nodo* invertirLista(Nodo *lista) {
+    Nodo *invertida = NULL;
+    Nodo *aux = lista;
     while (aux != NULL) {
-        Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
+        Nodo *nuevo = (Nodo*)malloc(sizeof(Nodo));
         nuevo->dato = aux->dato;
         nuevo->sig = invertida; // Inserta al principio de la nueva lista
         invertida = nuevo;
@@ -58,6 +58,7 @@ void imprimirLista(Nodo* lista) {
 // Libera la memoria ocupada por todos los nodos de la lista
 void liberarLista(Nodo* lista) {
     Nodo* aux;
+
     while (lista != NULL) {
         aux = lista;
         lista = lista->sig;

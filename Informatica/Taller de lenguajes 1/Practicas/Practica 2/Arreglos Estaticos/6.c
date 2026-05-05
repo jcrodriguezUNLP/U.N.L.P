@@ -1,51 +1,62 @@
+// ==============================================================================
+// PROBLEMA 6: FRECUENCIA DE DÍGITOS
+// ==============================================================================
+// Escriba un programa que:
+//     lea:
+//         un número entero desde el teclado.
+//     imprima:
+//         la cantidad de veces que aparece cada dígito numérico en el mismo.
+// ==============================================================================
 #include <stdio.h>
 
-#define DIGITOS 10 // Cantidad de dígitos (0-9)
-
-// Función para contar las apariciones de los dígitos
-void contarDigitos(int numero, int contador[]) {
-    // Asegurarse de trabajar con el valor absoluto del número
-    if (numero < 0) {
-        numero = -numero;
+void imprimirFrecuencias( int frecuencias[ 10 ] ) {
+    
+    printf( "      |" ) ;
+    for( int i = 0 ; i < 10 ; i++ ) {
+        printf( " %d |" , i ) ;
     }
+    printf( "\n" ) ;
 
-    // Inicializar el contador
-    for (int i = 0; i < DIGITOS; i++) {
-        contador[i] = 0;
+    printf( "------+" ) ;
+    for( int i = 0 ; i < 10 ; i++ ) {
+        printf( "---+" ) ;
     }
+    printf( "\n" ) ;
 
-    // Contar las apariciones de cada dígito
-    while (numero > 0) {
-        int digito = numero % 10; // Obtener el último dígito
-        contador[digito]++;       // Incrementar el contador correspondiente
-        numero /= 10;             // Eliminar el último dígito
+    printf( " Frec |" ) ;
+    for( int i = 0 ; i < 10 ; i++ ) {
+        printf( " %d |" , frecuencias[ i ] ) ;
     }
+    printf( "\n\n" ) ;
 }
 
-// Función para imprimir los resultados
-void imprimirFrecuenciaDigitos( int numero ) {
-    int contador[DIGITOS]; // Array para contar las apariciones de cada dígito
+void calcularFrecuenciaDigitos( int numero ) {
+    int frecuencias[ 10 ] = { 0 } ;
 
-    contarDigitos(numero, contador); // Llamar a la función para contar los dígitos
+    while( numero != 0 ) {
+        int num = ( numero % 10 ) ;
 
-    printf("Frecuencia de los dígitos:\n");
-    for (int i = 0; i < DIGITOS; i++) {
-        if (contador[i] > 0) {
-            printf("Dígito %d: %d veces\n", i, contador[i]);
-        }
+        frecuencias[ num ]++ ;
+
+        numero /= 10 ;
     }
+
+    imprimirFrecuencias( frecuencias ) ;
 }
 
 int main() {
-    int numero;
-    int contador[ DIGITOS ] ; // Array para contar las apariciones de cada dígito
+    int inputNumero ;
 
-    // Leer un número entero desde teclado
-    printf("Ingrese un número entero: ");
-    scanf("%d", &numero);
+    printf( "--- Analizador de Frecuencia Numerica ---\n\n" ) ;
+    
+    // Lectura desde teclado
+    printf( "Ingrese un numero entero: " ) ;
+    scanf( "%d" , &inputNumero ) ;
 
-    // Llamar a la función para imprimir los resultados
-    imprimirFrecuencia( numero ) ;
+    printf( "\nAnalizando el numero: %d\n\n" , inputNumero ) ;
 
-    return 0;
+    // Invocamos el core
+    calcularFrecuenciaDigitos( inputNumero ) ;
+
+    return( 0 ) ;
 }

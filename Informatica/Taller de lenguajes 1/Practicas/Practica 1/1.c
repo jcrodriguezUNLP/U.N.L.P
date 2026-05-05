@@ -1,67 +1,62 @@
-// Al  compilar  un  programa  en  C,  el  compilador  puede  notificar  errores  y  avisos  (warnings).
+// ==============================================================================
+// ANÁLISIS 1: ERRORES Y WARNINGS DE COMPILACIÓN
+// ==============================================================================
+//
+// Contexto:
+//     - Compilación utilizando el flag -Wall.
+//
+// Tarea:
+//     1. ¿Qué diferencia existe entre errores y warnings?
+//     2. ¿Puede un programa compilar con errores? ¿Y con warnings?
+//     3. Compile, identifique y corrija los errores/warnings en los códigos.
+// ==============================================================================
 
-// ¿Qué diferencia  existe  entre  ellos?
-//    - ERRORES:
-//        Son problemas críticos que impiden la compilación
-//        Ejemplos: sintaxis incorrecta, variables no declaradas, funciones inexistentes, etc.
-//    - WARNINGS:
-//        Son avisos sobre posibles problemas o malas prácticas.
-//        Ejemplos: variables no usadas, conversiones implícitas, etc.
-
-// ¿puede  un  programa  compilar  con  errores? ¿y  con  warnings? 
-//    El código NO puede compilar con errores.
-//    El código SÍ puede compilar con warnings.
-
-// Compile los siguientes programas  e identifique errores y warnings.
-
-// Luego, corríjalos para que el código compile correctamente.
+// --- 1. RESPUESTAS TEÓRICAS ---
+//
+// 1. Diferencia:
+//    - ERRORES: Son problemas críticos (ej. sintaxis inválida) que impiden que 
+//      el compilador traduzca el código. 
+//    - WARNINGS: Son avisos. El código es sintácticamente válido, pero tiene 
+//      malas prácticas o comportamientos ambiguos (ej. conversiones implícitas, 
+//      variables declaradas que nunca se usan).
+//
+// 2. Compilación:
+//    - Con errores: NO compila. No se genera el archivo ejecutable.
+//    - Con warnings: SÍ compila. El ejecutable se genera, pero puede fallar o 
+//      comportarse de forma errática en tiempo de ejecución.
 
 #include <stdio.h>
-int main(){ 
-    // a
-        // double pi = 3.14 ;
-        // int     y = 5
 
-        // printf( "pi = %d\n" , pi ) ;
-
-        // -----------------------------------------------------------------------------------//
-        // ERRORES:
-        //   - Falta punto y coma (;) después de "int y = 5"
-        //   - Especificador incorrecto: usa %d para double (debería ser %f)
-        //      Esto produce un resultado incorrecto al imprimir el valor
-        // WARNINGS:
-        //   - Variable 'y' declarada pero no utilizada
-        //   - Falta de 'return 0;' en main puede generar un warning en algunos compiladores
-        // ------------------------------------------------------------------------------------//
-
-    // b
-        // int x = 10 ;
-
-        // if( x = 5 ) 
-        //     printf( "x = 5\n" ) ;
-        
-        // return( 0 ) ;
-        
-        // -------------------------------------------------------------------------------//
-        // ERRORES:
-        //   - Asignación (=) en lugar de comparación (==) en la condición if
-        // WARNINGS:
-        //   - Warning sobre asignación en condición if (sugiere usar == en lugar de =) 
-        // -------------------------------------------------------------------------------//
+int main() {
     
-    // a corregido
-        double pi = 3.14 ;
+    // --- 2. CORRECCIÓN PARTE A ---
+    // Errores originales: faltaban punto y coma (;). Falta de return.
+    // Warnings originales (-Wall): variable 'y' sin uso, formato %d para double.
+    
+    double pi = 3.14 ;
+    int    y  = 5    ; // CORRECCIÓN: Se agregó el ';'
 
-        printf( "pi = %f\n" , pi ) ;
+    // CORRECCIÓN: Se cambió '%d' por '%f' para imprimir un double correctamente
+    printf( "pi = %f\n" , pi ) ;
 
-        return( 0 ) ;
+    // CORRECCIÓN: Se imprime 'y' para eliminar el warning de "variable unused"
+    printf( "y  = %d\n" , y ) ;
 
-    // b corregido
-        // int x = 10 ;
+    printf( "------------------------------\n" ) ;
 
-        // if( x == 5 ){
-        //     printf( "x = 5\n" ) ;
-        // }
-        
-        // return( 0 ) ;
+
+    // --- 3. CORRECCIÓN PARTE B ---
+    // Errores originales: uso de asignación (=) en lugar de comparación (==).
+    
+    int x = 10 ;
+
+    // CORRECCIÓN: Se reemplazó '=' por '=='
+    if( x == 5 ) {
+        printf( "x = 5\n" ) ;
+    } else {
+        printf( "x no es 5 (es %d)\n" , x ) ;
+    }
+
+    // CORRECCIÓN: Se agregó el retorno esperado por la firma 'int main'
+    return( 0 ) ;
 }

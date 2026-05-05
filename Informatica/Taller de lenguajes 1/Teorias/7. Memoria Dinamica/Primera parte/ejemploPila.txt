@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define N 5
+struct nodo{
+  int edad;
+  struct nodo * sig;
+};
+
+void mostrar(struct nodo * );
+void liberar(struct nodo *);
+
+int main(){
+   struct nodo *aux, *Lista = NULL ;
+   int dato;
+
+   printf("Ingrese edad (0=FIN) : ");
+   scanf("%d", &dato);
+   while (dato>0){
+      aux = malloc(sizeof(struct nodo));
+      aux->edad = dato;
+      aux->sig = Lista;
+      Lista = aux;
+
+      printf("Ingrese edad (0=FIN) : ");
+      scanf("%d", &dato);
+   }
+
+   mostrar(Lista);
+   liberar(Lista);
+   return 0;
+ }
+
+void mostrar(struct nodo * L){
+   for (; L!=NULL; L=L->sig)
+    printf("%d  ", L->edad);
+
+}
+
+void liberar(struct nodo *L){
+   struct nodo * aux;
+
+   while (L!=NULL){
+    aux = L;
+    L = L->sig;
+    free(aux);
+   }
+}

@@ -1,65 +1,126 @@
+// ==============================================================================
+// PROBLEMA 4: MATRIZ TRANSPUESTA Y ROTACIONES
+// ==============================================================================
+// Desarrolle una función que:
+//     reciba:
+//         una matriz cuadrada A.
+//     imprima:
+//         su matriz transpuesta en pantalla.
+//     nota matemática:
+//         el elemento (j, i) de la original se convierte en el (i, j) de la transpuesta.
+// ==============================================================================
+
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
-#define ANCHO 4
-#define ALTO 4
-
-// llenar la matriz con numeros aleatorios entre 0 y 10
-void llenarMatriz( char matriz[][ANCHO] , int alto ) {
-    char caracter = 'a' ;
-
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            matriz[ i ][ j ] = caracter ;
-
-            caracter++;
-        }
+void imprimirMatriz( int m , int n , int matriz[ m ][ n ] ) {
+    
+    // 1. Renderizar cabecera de columnas (Índices superiores)
+    printf( "      |" ) ;
+    for( int columna = 0 ; columna < n ; columna++ ) {
+        printf( " %3d |" , columna ) ;
     }
-}
+    printf( "\n" ) ;
 
-// funcion para imprimir la matriz
-void imprimirMatriz( char matriz[][ANCHO] , int alto ) {
-    for (int i = 0 ; i < alto ; i++ ) {
-        for (int j = 0 ; j < ANCHO ; j++ ) {
-            printf( "%c ", matriz[ i ][ j ] ) ;
+    // 2. Renderizar línea separadora dinámica
+    printf( "------+" ) ;
+    for( int columna = 0 ; columna < n ; columna++ ) {
+        printf( "-----+" ) ;
+    }
+    printf( "\n" ) ;
+
+    // 3. Renderizar cuerpo de la matriz
+    for( int fila = 0 ; fila < m ; fila++ ) {
+        
+        // Índice de la fila actual (Borde izquierdo)
+        printf( "| %3d |" , fila ) ; 
+        
+        // Datos de la fila
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            printf( " %3d |" , matriz[ fila ][ columna ] ) ;
+        }
+        printf( "\n" ) ;
+        
+        printf( "------+" ) ;
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            printf( "-----+" ) ;
         }
         printf( "\n" ) ;
     }
+
+    printf( "\n" ) ;
 }
 
-// multiplicar la matriz por un escalar
-void trasponerMatriz( char matriz[][ANCHO] , char traspuesta[][ALTO] , int alto ) {
-    for( int i = 0 ; i < alto ; i++ ) {
-        for( int j = 0 ; j < ANCHO ; j++ ) {
-            traspuesta[ i ][ j ] = matriz[ j ][ i ];
+void rotar90Grados( int n , int matriz[ n ][ n ] ) {
+    int rotada[ n ][ n ] ;
+    
+    for( int fila = 0 ; fila < n ; fila++ ){
+        for( int columna = 0 ; columna < n ; columna++ ){
+            rotada[ columna ][ (n-1) - fila ] = matriz[ fila ][ columna ] ;
+        }
+    }
+
+    for( int fila = 0 ; fila < n ; fila++ ) {
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            matriz[ fila ][ columna ] = rotada[ fila ][ columna ] ;
+        }
+    }
+}
+
+void trasponerMatriz( int m , int n , int original[ m ][ n ] , int destino[ n ][ m ] ) {
+    for( int fila = 0 ; fila < m ; fila++ ) {
+        for( int columna = 0 ; columna < n ; columna++ ) {
+            destino[ columna ][ fila ] = original[ fila ][ columna ] ;
         }
     }
 }
 
 int main() {
-    // inicializar la semilla del generador de numeros aleatorios
-    // usando la hora actual como semilla
-    srand( time(NULL) ) ;
+    printf( "--- Suite de Operaciones Matriciales ---\n\n" ) ;
 
-    // matriz
-    char matriz[ ALTO ][ ANCHO ] ;
+    // ==========================================================================
+    // TEST 1: Rotación 90 Grados (Matriz Cuadrada In-Place)
+    // ==========================================================================
+    int dimA = 3 ; // Dimensión para matriz cuadrada
 
-    // llenar la matriz con numeros aleatorios
-    llenarMatriz( matriz , ALTO ) ;
+    int matrizA[ 3 ][ 3 ] = {
+        { 1 ,  8 , -3 } ,
+        { 4 , -2 ,  5 } ,
+        { 6 , -1 ,  7 }
+    } ;
 
-    // imprimir la matriz
-    printf( "\nMatriz original:\n\n" ) ;
-    imprimirMatriz( matriz , ALTO ) ;
+    printf( "[TEST 1] Matriz Original A ( %dx%d ):\n" , dimA , dimA ) ;
+    imprimirMatriz( dimA , dimA , matrizA ) ;
 
-    // transponer la matriz
-    char traspuesta[ANCHO][ALTO];
-    trasponerMatriz( matriz , traspuesta , ALTO );
+    rotar90Grados( dimA , matrizA ) ;
 
-    // imprimir la matriz transpuesta
-    printf( "\nMatriz traspuesta:\n\n" );
-    imprimirMatriz( traspuesta , ANCHO );
+    printf( "[TEST 1] Matriz A rotada 90 grados en memoria:\n" ) ;
+    imprimirMatriz( dimA , dimA , matrizA ) ;
 
-    printf( "\n" ) ;
+
+    // ==========================================================================
+    // TEST 2: Transposición Universal (Matriz Rectangular con Buffer)
+    // ==========================================================================
+    int m = 2 ; // Filas origen
+    int n = 3 ; // Columnas origen
+
+    int matrizB[ 2 ][ 3 ] = {
+        { 1 ,  8 , -3 } ,
+        { 4 , -2 ,  5 }
+    } ;
+    
+    // CREACIÓN DEL BUFFER: Matriz vacía con las dimensiones invertidas (3x2)
+    int matrizB_Traspuesta[ 3 ][ 2 ] = { 0 } ;
+    
+    printf( "[TEST 2] Matriz Original B (Rectangular %dx%d):\n" , m , n ) ;
+    imprimirMatriz( m , n , matrizB ) ;
+    
+    // Ejecutamos la transposición pasando origen y el buffer de destino
+    trasponerMatriz( m , n , matrizB , matrizB_Traspuesta ) ;
+
+    // Al imprimir, invertimos los parámetros a (n, m) porque ahora tiene 3 filas y 2 columnas
+    printf( "[TEST 2] Matriz B traspuesta ( %dx%d ):\n" , n , m ) ;
+    imprimirMatriz( n , m , matrizB_Traspuesta ) ;
+
+
     return( 0 ) ;
 }

@@ -1,0 +1,48 @@
+/// Matriz din mica como un  nico
+/// bloque de memoria consecutivo
+
+#include <stdio.h>
+#include <stdlib.h>
+
+void VerMatriz(int *, int f, int c);
+int main()
+{  int *Dinamica, N, M;
+   int i, j;
+   printf("Ingrese N y M: ");
+   scanf("%d %d", &N, &M);
+
+   /// reservamos memoria en la heap
+   Dinamica = malloc(N*M*sizeof(int));
+
+   /// cargamos la matriz con nros.consecutivos
+   for (i=0;i < N; i++)
+     for (j=0; j< M; j++)
+          *(Dinamica+i*M+j) = i*M + j + 1;
+
+   VerMatriz(Dinamica, N,M);
+
+   free(Dinamica);
+   return(0);
+}
+void VerMatriz(int *M, int filas, int cols)
+{ int i,j;
+
+  for (i=0;i < filas; i++){
+     for (j=0; j<cols; j++)
+       printf("%2d  ",*(M + i*cols + j));
+     printf("\n");
+  }
+
+}
+
+/* void VerMatriz_local(const int M[][COL], int f)
+{ int i,j;
+
+  for (i=0;i < f; i++){
+     for (j=0; j<COL; j++)
+       printf("%2d  ", M[i][j]);
+     printf("\n");
+  }
+
+}
+*/
