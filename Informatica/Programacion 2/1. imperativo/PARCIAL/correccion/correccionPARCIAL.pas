@@ -10,8 +10,8 @@ Type
 			goles		    : Integer	;
 		end ;
 
-		TListaGoleadores = ^TNodoListaGoleadores ;
-		
+		TListaGoleadores = ^TNodoListaGoleadores ;	
+
 		TNodoListaGoleadores = record
 			jugador : TJugador		   ;
 			sig     : TListaGoleadores ;

@@ -9,8 +9,27 @@ public class CrearClase {
     
     private static Scanner in = new Scanner( System.in ) ;
 
+    private static String toCamelCase(String s) {
+        // ... (Tu función toCamelCase, sin cambios) ...
+        if (s == null || s.trim().isEmpty()) {
+            return "";
+        }
+        String[] parts = s.trim().toLowerCase().split("\\s+");
+        
+        if (parts.length == 0) {
+            return ""; 
+        }
+        
+        String camelCaseString = parts[0];
+        for (int i = 1; i < parts.length; i++) {
+            camelCaseString += Capitalize.capitalize(parts[i]); 
+        }
+        return camelCaseString;
+    }
+    
     public static void crearClase( List<Clase> clasesGeneradas ) {
 
+        // ... (Lógica de inicio, Main, esAbstracta, hereda) ...
         System.out.print( "\n" + "Ingrese el nombre de la clase: " ) ;
         String nombreClase = in.nextLine() ;
         nombreClase = Capitalize.capitalize( nombreClase ) ;
@@ -23,73 +42,88 @@ public class CrearClase {
             System.out.println( Sangria.sangria( 1 ) + "}" ) ;
             System.out.println( "}" ) ;
         } else {
-            System.out.print( "\n" + "¿Es una clase abstracta? ( s/n ): ") ;
-            boolean esAbstracta = in.nextLine().equalsIgnoreCase( "s" ) ;
-
-            System.out.print( "\n" + "¿Hereda de alguna clase existente? ( s/n ): " ) ;
-            String heredaRespuesta = in.nextLine() ;
+            // --- VALIDACIÓN: ¿Es abstracta? ---
+            String abstractaRespuesta;
+            do {
+                System.out.print( "\n" + "¿Es una clase abstracta? ( s/n ): ") ;
+                abstractaRespuesta = in.nextLine().trim().toLowerCase();
+            } while (!abstractaRespuesta.equals("s") && !abstractaRespuesta.equals("n"));
+            
+            boolean esAbstracta = abstractaRespuesta.equals("s");
+            
+            // --- VALIDACIÓN: ¿Hereda? ---
+            String heredaRespuesta;
+            do {
+                System.out.print( "\n" + "¿Hereda de alguna clase existente? ( s/n ): " ) ;
+                heredaRespuesta = in.nextLine().trim().toLowerCase();
+            } while (!heredaRespuesta.equals("s") && !heredaRespuesta.equals("n"));
+            
             Clase claseBase = null;
-            if ( heredaRespuesta.equalsIgnoreCase( "s" ) ) {
+            
+            if ( heredaRespuesta.equals("s") ) {
                 System.out.println( "Clases disponibles para heredar:" ) ;
 
                 if ( clasesGeneradas.isEmpty() ) {
                     System.out.println( "No hay clases disponibles" ) ;
                     claseBase = null ;
                 } else {
-                    for ( int i = 0; i < clasesGeneradas.size() ; i++) {
-                        System.out.println( (i + 1) + ". " + clasesGeneradas.get( i ).getNombre()) ;
+                    boolean seleccionValida = false;
+                    while (!seleccionValida) {
+                        for ( int i = 0; i < clasesGeneradas.size() ; i++) {
+                            System.out.println( (i + 1) + ". " + clasesGeneradas.get( i ).getNombre()) ;
+                        }
+                        System.out.print( "Ingrese el número correspondiente a la clase de la que desea heredar: " ) ;
+                        
+                        try {
+                            int seleccion = Integer.parseInt( in.nextLine() ) - 1 ;
+                            if (seleccion >= 0 && seleccion < clasesGeneradas.size()) {
+                                claseBase = clasesGeneradas.get( seleccion ) ;
+                                seleccionValida = true;
+                            } else {
+                                System.out.println("Opción fuera de rango. Intente de nuevo.");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Entrada inválida. Debe ingresar un número.");
+                        }
                     }
-                    System.out.print( "Ingrese el número correspondiente a la clase de la que desea heredar: " ) ;
-                    int seleccion = Integer.parseInt( in.nextLine() ) - 1 ;
-                    claseBase = clasesGeneradas.get( seleccion ) ;
                 }
             }
 
             List<Variable> variablesPropias = new ArrayList<>() ;
 
-            // Preguntar si desea agregar una variable
-            System.out.print( "\n¿Desea agregar una variable? (s/n): " ) ;
-            String respuesta = in.nextLine().trim().toLowerCase() ;
+            // --- VALIDACIÓN: ¿Desea agregar una variable? (Primer pregunta) ---
+            String respuesta;
+            do {
+                System.out.print( "\n¿Desea agregar una variable? (s/n): " ) ;
+                respuesta = in.nextLine().trim().toLowerCase() ;
+            } while (!respuesta.equals("s") && !respuesta.equals("n"));
 
-            boolean agregarVariable ;
-
-            if ( respuesta.equals( "s" ) ) {
-                agregarVariable = true ; // Cambiar la bandera para salir del bucle
-            } else {
-                agregarVariable = false ;
-            }
+            boolean agregarVariable = respuesta.equals("s");
 
             while (agregarVariable) {
                 System.out.println( "\n" + "Nueva variable:" ) ;
 
                 // Solicitar el nombre de la variable
                 System.out.print( Sangria.sangria( 1 ) + "Nombre: " ) ;
-                String nombre = in.nextLine() ; // Lee el nombre de la variable
+                String nombreInput = in.nextLine() ;
+                String nombre = toCamelCase(nombreInput); 
 
-                // Solicitar el tipo de la variable
-                System.out.println( Sangria.sangria( 1 ) + "Tipo:" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "1. int" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "2. double" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "3. boolean" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "4. char" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "5. String" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "6. void" ) ;
-                System.out.println( Sangria.sangria( 2 ) + "7. otro" ) ;
-                System.out.print( Sangria.sangria( 1 ) + "Ingrese el número correspondiente al tipo de variable: " ) ;
-                int opcion = in.nextInt() ; // Lee el tipo de variable
-                in.nextLine() ; // Consume el salto de línea
-
-                String tipo = obtenerTipo( opcion ) ;
+                // *** CAMBIO: Usar TipoUtil ***
+                // La función se encarga de mostrar el menú y validar la entrada
+                String tipo = TipoUtil.obtenerTipo(in, 1); 
 
                 // Crear la instancia de Variable y agregarla a la lista
-                variablesPropias.add( new Variable( tipo , nombre ) ) ;
+                variablesPropias.add( new Variable( tipo , nombre, nombreInput ) ) ; 
 
-                // Preguntar si desea agregar otra variable
-                System.out.print( "\n¿Desea agregar otra variable? (s/n): " ) ;
-                respuesta = in.nextLine().trim().toLowerCase() ;
+                // --- VALIDACIÓN: ¿Desea agregar otra variable? ---
+                String otraRespuesta;
+                do {
+                    System.out.print( "\n¿Desea agregar otra variable? (s/n): " ) ;
+                    otraRespuesta = in.nextLine().trim().toLowerCase() ;
+                } while (!otraRespuesta.equals("s") && !otraRespuesta.equals("n"));
 
-                if (!respuesta.equals( "s" )) {
-                    agregarVariable = false ; // Cambiar la bandera para salir del bucle
+                if (!otraRespuesta.equals( "s" )) {
+                    agregarVariable = false ; 
                 }
             }
 
@@ -98,34 +132,36 @@ public class CrearClase {
 
             // metodos abstractos
             if ( esAbstracta ) {
-                System.out.print( "\n" + "¿Desea agregar métodos abstractos? ( s/n ): " ) ;
-                boolean agregarMetodos = in.nextLine().equalsIgnoreCase( "s" ) ;
+                // --- VALIDACIÓN: ¿Desea agregar métodos abstractos? ---
+                String metodosAbstractosRespuesta;
+                do {
+                    System.out.print( "\n" + "¿Desea agregar métodos abstractos? ( s/n ): " ) ;
+                    metodosAbstractosRespuesta = in.nextLine().trim().toLowerCase();
+                } while (!metodosAbstractosRespuesta.equals("s") && !metodosAbstractosRespuesta.equals("n"));
+
+                boolean agregarMetodos = metodosAbstractosRespuesta.equals("s");
 
                 int cantMetodos = 0 ;
                 while ( agregarMetodos ) {
                     System.out.println( "\n" + "Método abstracto N°" + (cantMetodos + 1) + ":" ) ;
 
                     System.out.print( Sangria.sangria( 1 ) + "Nombre: " ) ;
-                    String nombre = in.nextLine() ; // Lee el nombre del método
+                    String nombreInput = in.nextLine() ;
+                    String nombre = toCamelCase(nombreInput); 
 
-                    System.out.println( Sangria.sangria( 1 ) + "Tipo:" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "1. int" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "2. double" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "3. boolean" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "4. char" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "5. String" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "6. void" ) ;
-                    System.out.println( Sangria.sangria( 2 ) + "7. otro" ) ;
-                    System.out.print( Sangria.sangria( 1 ) + "Ingrese el número correspondiente al tipo: " ) ;
-                    int opcion = in.nextInt() ; // Lee el tipo de retorno
-                    in.nextLine() ; // Consume el salto de línea
+                    // *** CAMBIO: Usar TipoUtil ***
+                    String tipo = TipoUtil.obtenerTipo(in, 1); 
 
-                    String tipo = obtenerTipo( opcion ) ;
+                    metodosAbstractos.add( new MetodoAbstracto( tipo , nombre, nombreInput ) ) ; 
 
-                    metodosAbstractos.add( new MetodoAbstracto( tipo , nombre ) ) ; // Crea una instancia de MetodoAbstracto
-
-                    System.out.print( "\n" + "¿Desea agregar otro método abstracto? ( s/n ): " ) ;
-                    agregarMetodos = in.nextLine().equalsIgnoreCase( "s" ) ;
+                    // --- VALIDACIÓN: ¿Desea agregar otro método abstracto? ---
+                    String otroMetodoRespuesta;
+                    do {
+                        System.out.print( "\n" + "¿Desea agregar otro método abstracto? ( s/n ): " ) ;
+                        otroMetodoRespuesta = in.nextLine().trim().toLowerCase();
+                    } while (!otroMetodoRespuesta.equals("s") && !otroMetodoRespuesta.equals("n"));
+                    
+                    agregarMetodos = otroMetodoRespuesta.equals("s");
                     cantMetodos++ ;
                 }
             }
@@ -137,32 +173,6 @@ public class CrearClase {
             System.out.println( nuevaClase.generarCodigo() ) ;
         }
     }
-
-    private static String obtenerTipo( int opcion ) {
-        while ( true ) { // Bucle para repetir en caso de opción inválida
-            switch ( opcion ) {
-                case 1:
-                    return "int" ;
-                case 2:
-                    return "double" ;
-                case 3:
-                    return "boolean" ;
-                case 4:
-                    return "char" ;
-                case 5:
-                    return "String" ;
-                case 6:
-                    return "void" ;
-                case 7: {
-                    System.out.print( "Ingrese el tipo personalizado: " ) ;
-                    String tipoPersonalizado = in.nextLine() ;
-                    return Capitalize.capitalize( tipoPersonalizado ) ;
-                }
-                default:
-                    System.out.print( "Opción inválida. Ingrese un número válido (1-7): " ) ;
-                    opcion = in.nextInt() ;
-                    in.nextLine(); // Consumir el salto de línea
-            }
-        }
-    }
+    
+    // NOTA: La antigua función obtenerTipo y su lógica se ELIMINARON de aquí.
 }
