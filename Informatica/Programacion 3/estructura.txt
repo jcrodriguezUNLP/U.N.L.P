@@ -1,0 +1,44 @@
+Listado de rutas de carpetas para el volumen Windows
+El número de serie del volumen es 0EFC-E23C
+C:.
+|   estructura.txt
+|   
++---Parciales
++---Practicas
+|   |   Reglas.md
+|   |   
+|   \---Practica 1
+|       |   Consignas.md
+|       |   Práctica 1 - Estructuras de control y datos básicas - Recursión - Listas_ .pdf
+|       |   
+|       +---ejercicio 1
+|       |       Ejercicio1.java
+|       |       
+|       +---ejercicio 2
+|       |       Ejercicio2.java
+|       |       
+|       +---ejercicio 3
+|       |       Ejercicio3.java
+|       |       Estudiante.java
+|       |       Profesor.java
+|       |       
+|       +---ejercicio 5
+|       |       Ejercicio5.java
+|       |       Metricas.java
+|       |       
+|       \---ejercicio 7
+|               EjercicioSucesion.java
+|               TestArrayList.java
+|               
++---Teorias
+|       CLASE 1.1 - Creando clases - static - parametros.pdf
+|       
+\---Tutorial Eclipse
+    |   .classpath
+    |   .project
+    |   Tutorial_Eclipse.pdf
+    |   
+    \---Ejemplo
+            Alumno.java
+            AplicacionDePrueba.java
+            
