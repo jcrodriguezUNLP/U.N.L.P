@@ -1,49 +1,68 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class GeneradorDeClases {
-    private static List<Clase> clasesGeneradas = new ArrayList<>() ;
-    private static Scanner in = new Scanner( System.in ) ;
+    private List<Clase> clasesGeneradas;
 
-    public static void main( String[] args ) {
-        int opcion = 0 ;
+    public GeneradorDeClases() {
+        this.clasesGeneradas = GestorMemoria.cargar();
+    }
+
+    public static void main(String[] args) {
+        new GeneradorDeClases().iniciar();
+    }
+
+    public void iniciar() {
+        int opcion = 0;
         do {
-            System.out.println( "\n1. Crear clase"            ) ;
-            System.out.println( "2. Mostrar clase individual" ) ;
-            System.out.println( "3. Mostrar todas las clases" ) ;
-            System.out.println( "4. Modificar clase"          ) ;
-            System.out.println( "5. Salir"                    ) ;
-            System.out.print  ("Opción: "                     ) ;
+            Estilo.limpiarPantalla();
+            MenuUI.mostrarBanner();
+            MenuUI.mostrarEstado(clasesGeneradas.size());
+            MenuUI.mostrarMenuPrincipal(clasesGeneradas.size());
             
-            try {
-                opcion = in.nextInt() ;
-                in.nextLine() ;
-                
-                switch( opcion ) {
-                    case 1:
-                        CrearClase.crearClase( clasesGeneradas ) ;
-                        break ;
-                    case 2:
-                        MostrarClase.mostrarClase( clasesGeneradas ) ;
-                        break ;
-                    case 3:
-                        MostrarClases.mostrarClases( clasesGeneradas ) ;
-                        break ;
-                    case 4:
-                        ModificarClase.modificarClase( clasesGeneradas ) ; // LLAMADA A LA NUEVA CLASE
-                        break ;
-                    case 5:
-                        System.out.println("Saliendo...") ;
-                        break ;
-                    default:
-                        System.out.println("Opción no válida") ;
+            opcion = Consola.leerEntero();
+            int cantClases = clasesGeneradas.size();
+
+            if (cantClases == 0) {
+                // Menú corto (solo 1 y 7)
+                switch(opcion) {
+                    case 1: CrearClase.crearClase(clasesGeneradas); MenuUI.esperarEnter(); break;
+                    case 7: break; // Salir
+                    default: MenuUI.imprimirError("Opción no válida."); MenuUI.esperarEnter(); break;
                 }
-            } catch (java.util.InputMismatchException e) {
-                System.out.println("Error: Ingrese un número válido.");
-                in.nextLine(); // Limpia el buffer del scanner
-                opcion = 0; // Asegura que el bucle continúe
+                if (opcion == 7) break;
+            } else {
+                // Menú completo
+                switch(opcion) {
+                    case 1: CrearClase.crearClase(clasesGeneradas); MenuUI.esperarEnter(); break;
+                    case 2: Visualizador.mostrarClase(clasesGeneradas); MenuUI.esperarEnter(); break;
+                    case 3: Visualizador.mostrarTodas(clasesGeneradas); MenuUI.esperarEnter(); break;
+                    case 4: ModificarClase.modificarClase(clasesGeneradas); break;
+                    case 5: borrarClase(); MenuUI.esperarEnter(); break;
+                    case 6: exportarAArchivo(); MenuUI.esperarEnter(); break;
+                    case 7: break; // Salir
+                    default: MenuUI.imprimirError("Opción no válida."); MenuUI.esperarEnter(); break;
+                }
+                if (opcion == 7) break;
             }
-        } while( opcion != 5 ) ;
+        } while(opcion != 7);
+
+        GestorMemoria.guardar(clasesGeneradas);
+        MenuUI.imprimirInfo("Saliendo del programa...");
+    }
+
+    private void borrarClase() {
+        Clase sel = InteraccionUtils.seleccionarClase(clasesGeneradas, "Seleccione la clase a borrar");
+        if (sel != null) {
+            clasesGeneradas.remove(sel);
+            System.out.println("✅ Clase eliminada.");
+        }
+    }
+
+    private void exportarAArchivo() {
+        Clase sel = InteraccionUtils.seleccionarClase(clasesGeneradas, "Seleccione la clase a exportar");
+        if (sel != null) {
+            EscritorDeArchivos.guardarClase(sel);
+        }
     }
 }
