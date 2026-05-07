@@ -1,3 +1,8 @@
+package util;
+
+import ui.Consola;
+import ui.MenuUI;
+
 public class Validador {
     
     /**

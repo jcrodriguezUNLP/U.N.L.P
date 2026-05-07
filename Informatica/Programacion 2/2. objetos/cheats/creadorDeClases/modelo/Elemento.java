@@ -1,3 +1,5 @@
+package modelo;
+
 import java.io.Serializable;
 
 public abstract class Elemento implements Serializable {

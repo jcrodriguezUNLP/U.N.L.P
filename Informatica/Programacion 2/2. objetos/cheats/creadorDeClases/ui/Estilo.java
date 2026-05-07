@@ -1,3 +1,5 @@
+package ui;
+
 public class Estilo {
     // Colores ANSI
     public static final String RESET = "\u001B[0m";

@@ -1,20 +1,21 @@
+package persistencia;
+
+import modelo.Clase;
+import ui.Estilo;
+import ui.MenuUI;
+import util.Config;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GestorMemoria {
-    private static final String ARCHIVO_MEMORIA = "generadas/memoria.dat";
 
     public static void guardar(List<Clase> clases) {
-        // Asegurar que la carpeta exista
-        File carpeta = new File("generadas");
-        if (!carpeta.exists()) {
-            carpeta.mkdir();
-        }
+        File carpeta = new File(Config.FOLDER_GENERADAS);
+        if (!carpeta.exists()) carpeta.mkdir();
 
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_MEMORIA))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(Config.PATH_MEMORIA))) {
             oos.writeObject(clases);
-            System.out.println("💾 Sesión guardada automáticamente.");
         } catch (IOException e) {
             System.out.println("❌ Error al guardar la sesión: " + e.getMessage());
         }
@@ -22,7 +23,7 @@ public class GestorMemoria {
 
     @SuppressWarnings("unchecked")
     public static List<Clase> cargar() {
-        File archivo = new File(ARCHIVO_MEMORIA);
+        File archivo = new File(Config.PATH_MEMORIA);
         if (!archivo.exists()) {
             return new ArrayList<>();
         }

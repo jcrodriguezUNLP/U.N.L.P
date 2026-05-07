@@ -1,5 +1,7 @@
 // package creadorDeClases;
 
+package util;
+
 public class Sangria {
     // constructores
         public Sangria() {}
