@@ -36,9 +36,10 @@ public class CrearClase {
 
             Clase nuevaClase = new Clase(nombreClase, esAbstracta, claseBase, variablesPropias , metodosAbstractos ) ;
             clasesGeneradas.add( nuevaClase ) ;
+            GestorMemoria.guardar(clasesGeneradas);
+            EscritorDeArchivos.guardarClase(nuevaClase);
 
-            MenuUI.imprimirExito("Clase '" + nombreClase + "' creada con éxito y guardada en la memoria.");
-            System.out.println(Estilo.ICON_FILE + " Use la opción 'Exportar' para generar el archivo .java.");
+            MenuUI.imprimirExito("Clase '" + nombreClase + "' creada con éxito, guardada y exportada.");
         }
     }
 }

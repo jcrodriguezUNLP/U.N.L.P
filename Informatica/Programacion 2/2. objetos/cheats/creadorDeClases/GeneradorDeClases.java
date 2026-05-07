@@ -24,13 +24,13 @@ public class GeneradorDeClases {
             int cantClases = clasesGeneradas.size();
 
             if (cantClases == 0) {
-                // Menú corto (solo 1 y 7)
+                // Menú corto (solo 1 y 6)
                 switch(opcion) {
                     case 1: CrearClase.crearClase(clasesGeneradas); MenuUI.esperarEnter(); break;
-                    case 7: break; // Salir
+                    case 6: break; // Salir
                     default: MenuUI.imprimirError("Opción no válida."); MenuUI.esperarEnter(); break;
                 }
-                if (opcion == 7) break;
+                if (opcion == 6) break;
             } else {
                 // Menú completo
                 switch(opcion) {
@@ -39,13 +39,12 @@ public class GeneradorDeClases {
                     case 3: Visualizador.mostrarTodas(clasesGeneradas); MenuUI.esperarEnter(); break;
                     case 4: ModificarClase.modificarClase(clasesGeneradas); break;
                     case 5: borrarClase(); MenuUI.esperarEnter(); break;
-                    case 6: exportarAArchivo(); MenuUI.esperarEnter(); break;
-                    case 7: break; // Salir
+                    case 6: break; // Salir
                     default: MenuUI.imprimirError("Opción no válida."); MenuUI.esperarEnter(); break;
                 }
-                if (opcion == 7) break;
+                if (opcion == 6) break;
             }
-        } while(opcion != 7);
+        } while(opcion != 6);
 
         GestorMemoria.guardar(clasesGeneradas);
         MenuUI.imprimirInfo("Saliendo del programa...");
@@ -55,14 +54,12 @@ public class GeneradorDeClases {
         Clase sel = InteraccionUtils.seleccionarClase(clasesGeneradas, "Seleccione la clase a borrar");
         if (sel != null) {
             clasesGeneradas.remove(sel);
-            System.out.println("✅ Clase eliminada.");
+            EscritorDeArchivos.borrarArchivo(sel);
+            GestorMemoria.guardar(clasesGeneradas);
+            System.out.println("✅ Clase eliminada de memoria.");
         }
     }
 
-    private void exportarAArchivo() {
-        Clase sel = InteraccionUtils.seleccionarClase(clasesGeneradas, "Seleccione la clase a exportar");
-        if (sel != null) {
-            EscritorDeArchivos.guardarClase(sel);
-        }
-    }
+    // El método exportarAArchivo() ya no es necesario llamarlo desde el menú
+    // pero lo dejamos como utilidad privada o lo eliminamos. 
 }

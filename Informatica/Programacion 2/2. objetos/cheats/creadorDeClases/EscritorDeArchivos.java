@@ -23,4 +23,30 @@ public class EscritorDeArchivos {
             System.out.println("\n❌ Error al guardar el archivo: " + e.getMessage());
         }
     }
+
+    public static void borrarArchivo(Clase clase) {
+        String nombreArchivo = clase.getNombre() + ".java";
+        File archivo = new File("generadas", nombreArchivo);
+
+        if (archivo.exists()) {
+            if (archivo.delete()) {
+                System.out.println("✅ Archivo '" + nombreArchivo + "' eliminado de la carpeta '/generadas'.");
+            } else {
+                System.out.println("❌ No se pudo eliminar el archivo '" + nombreArchivo + "'.");
+            }
+        }
+    }
+
+    public static void renombrarArchivo(String nombreViejo, String nombreNuevo) {
+        File archivoViejo = new File("generadas", nombreViejo + ".java");
+        File archivoNuevo = new File("generadas", nombreNuevo + ".java");
+
+        if (archivoViejo.exists()) {
+            if (archivoViejo.renameTo(archivoNuevo)) {
+                System.out.println("✅ Archivo renombrado: " + nombreViejo + ".java -> " + nombreNuevo + ".java");
+            } else {
+                System.out.println("❌ No se pudo renombrar el archivo físico.");
+            }
+        }
+    }
 }

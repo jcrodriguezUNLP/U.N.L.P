@@ -18,15 +18,18 @@ public class ModificarClase {
 
             opcionMod = Consola.leerEntero();
             switch (opcionMod) {
-                case 1: modificarNombre(claseSeleccionada); break;
-                case 2: cambiarStatusAbstracto(claseSeleccionada); break;
-                case 3: gestionarVariables(claseSeleccionada); break;
-                case 4: gestionarMetodosAbstractos(claseSeleccionada); break;
+                case 1: modificarNombre(claseSeleccionada); GestorMemoria.guardar(clasesGeneradas); break;
+                case 2: cambiarStatusAbstracto(claseSeleccionada); GestorMemoria.guardar(clasesGeneradas); break;
+                case 3: gestionarVariables(claseSeleccionada, clasesGeneradas); break;
+                case 4: gestionarMetodosAbstractos(claseSeleccionada, clasesGeneradas); break;
+            }
+            if (opcionMod >= 1 && opcionMod <= 4) {
+                EscritorDeArchivos.guardarClase(claseSeleccionada);
             }
         }
     }
 
-    private static void gestionarVariables(Clase clase) {
+    private static void gestionarVariables(Clase clase, List<Clase> clasesGeneradas) {
         int opVar = -1;
         while(opVar != 0) {
             System.out.println(Estilo.SUBRAYADO + "\nVariables de " + clase.getNombre() + ":" + Estilo.RESET);
@@ -50,15 +53,16 @@ public class ModificarClase {
             opVar = Consola.leerEntero();
             if (opVar == 1) {
                 clase.getVariablesPropias().add(InteraccionUtils.pedirVariable(vars.size() + 1));
+                GestorMemoria.guardar(clasesGeneradas);
             } else if (opVar == 2 && !vars.isEmpty()) {
-                eliminarElemento(clase.getVariablesPropias());
+                if (eliminarElemento(clase.getVariablesPropias())) GestorMemoria.guardar(clasesGeneradas);
             } else if (opVar == 3 && !vars.isEmpty()) {
-                modificarElemento(clase.getVariablesPropias());
+                if (modificarElemento(clase.getVariablesPropias())) GestorMemoria.guardar(clasesGeneradas);
             }
         }
     }
 
-    private static void gestionarMetodosAbstractos(Clase clase) {
+    private static void gestionarMetodosAbstractos(Clase clase, List<Clase> clasesGeneradas) {
         if (!clase.getEsAbstracta()) {
             MenuUI.imprimirError("Esta clase no es abstracta.");
             MenuUI.esperarEnter();
@@ -87,25 +91,28 @@ public class ModificarClase {
             opMet = Consola.leerEntero();
             if (opMet == 1) {
                 clase.getMetodosAbstractos().add(InteraccionUtils.pedirMetodo(mets.size() + 1));
+                GestorMemoria.guardar(clasesGeneradas);
             } else if (opMet == 2 && !mets.isEmpty()) {
-                eliminarElemento(clase.getMetodosAbstractos());
+                if (eliminarElemento(clase.getMetodosAbstractos())) GestorMemoria.guardar(clasesGeneradas);
             } else if (opMet == 3 && !mets.isEmpty()) {
-                modificarElemento(clase.getMetodosAbstractos());
+                if (modificarElemento(clase.getMetodosAbstractos())) GestorMemoria.guardar(clasesGeneradas);
             }
         }
     }
 
-    private static <T extends Elemento> void eliminarElemento(List<T> lista) {
+    private static <T extends Elemento> boolean eliminarElemento(List<T> lista) {
         System.out.print("Número de elemento a eliminar (0 para cancelar): ");
         int sel = Consola.leerEntero() - 1;
         if (sel >= 0 && sel < lista.size()) {
             lista.remove(sel);
             MenuUI.imprimirExito("Elemento eliminado.");
             MenuUI.esperarEnter();
+            return true;
         }
+        return false;
     }
 
-    private static <T extends Elemento> void modificarElemento(List<T> lista) {
+    private static <T extends Elemento> boolean modificarElemento(List<T> lista) {
         System.out.print("Número de elemento a modificar (0 para cancelar): ");
         int sel = Consola.leerEntero() - 1;
         if (sel >= 0 && sel < lista.size()) {
@@ -118,12 +125,20 @@ public class ModificarClase {
             }
             MenuUI.imprimirExito("Elemento actualizado.");
             MenuUI.esperarEnter();
+            return true;
         }
+        return false;
     }
 
     private static void modificarNombre(Clase clase) {
-        String nuevoNombre = Validador.solicitarNombreValido("Nuevo nombre (Actual: " + clase.getNombre() + "): ");
-        clase.setNombre(Capitalize.capitalize(nuevoNombre));
+        String nombreViejo = clase.getNombre();
+        String nuevoNombre = Validador.solicitarNombreValido("Nuevo nombre (Actual: " + nombreViejo + "): ");
+        String nombreCapitalizado = Capitalize.capitalize(nuevoNombre);
+        
+        if (!nombreViejo.equals(nombreCapitalizado)) {
+            clase.setNombre(nombreCapitalizado);
+            EscritorDeArchivos.renombrarArchivo(nombreViejo, nombreCapitalizado);
+        }
     }
 
     private static void cambiarStatusAbstracto(Clase clase) {

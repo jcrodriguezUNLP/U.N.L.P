@@ -20,10 +20,9 @@ public class MenuUI {
             System.out.println(Estilo.AMARILLO + "  3. " + Estilo.RESET + "Ver Todo el Proyecto");
             System.out.println(Estilo.AMARILLO + "  4. " + Estilo.RESET + "Editar Clase");
             System.out.println(Estilo.AMARILLO + "  5. " + Estilo.RESET + "Eliminar Clase");
-            System.out.println(Estilo.AMARILLO + "  6. " + Estilo.RESET + Estilo.VERDE + "Exportar a .java" + Estilo.RESET);
         }
         
-        System.out.println(Estilo.ROJO + "  7. " + Estilo.RESET + "Guardar y Salir");
+        System.out.println(Estilo.ROJO + "  6. " + Estilo.RESET + "Guardar y Salir");
         System.out.print("\n" + Estilo.CIAN + "» " + Estilo.RESET);
     }
 
