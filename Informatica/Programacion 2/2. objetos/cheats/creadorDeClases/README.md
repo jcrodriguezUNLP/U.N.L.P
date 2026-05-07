@@ -51,6 +51,19 @@ El código está organizado de la siguiente manera:
 
 ---
 
+## 🛠️ Compatibilidad con BlueJ
+
+Si utilizas la terminal integrada de **BlueJ**, notarás que los colores no se muestran correctamente (aparecen caracteres como `←[36m`). Para solucionarlo:
+
+1. Abre el archivo `ui/Estilo.java`.
+2. Cambia la constante `USAR_COLORES` a `false`:
+   ```java
+   public static final boolean USAR_COLORES = false;
+   ```
+Esto desactivará los códigos ANSI y permitirá una visualización limpia en entornos educativos.
+
+---
+
 ## ⚠️ Notas Importantes
 - **Carpeta `generadas/`:** Es el lugar donde vive tu código generado.
 - **Subcarpeta `generadas/revisiones/`:** Aquí se almacenan temporalmente las versiones modificadas externamente para ser confirmadas.
