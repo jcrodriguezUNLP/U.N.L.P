@@ -4,7 +4,7 @@ public class Estilo {
     /** 
      * Cambiar a 'false' si usas BlueJ o una terminal que no soporta colores ANSI.
      */
-    public static final boolean USAR_COLORES = true;
+    public static final boolean USAR_COLORES = false;
 
     // Colores ANSI (condicionales)
     public static final String RESET    = USAR_COLORES ? "\u001B[0m"  : "";

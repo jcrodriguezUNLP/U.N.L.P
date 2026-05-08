@@ -65,7 +65,8 @@ Esto desactivará los códigos ANSI y permitirá una visualización limpia en en
 ---
 
 ## ⚠️ Notas Importantes
-- **Carpeta `generadas/`:** Es el lugar donde vive tu código generado.
+- **Visualización en BlueJ:** Debido a que las clases generadas no incluyen declaración de paquete (para ser portátiles), **es posible que no aparezcan automáticamente en el diagrama de BlueJ**. Si esto sucede, simplemente búscalas y cópialas desde el **Explorador de Archivos de Windows** en la carpeta `/generadas`.
+- **Carpeta `generadas/`:** Es el lugar donde vive tu código generado. No cambies el nombre de esta carpeta.
 - **Subcarpeta `generadas/revisiones/`:** Aquí se almacenan temporalmente las versiones modificadas externamente para ser confirmadas.
 - **Archivo `memoria.dat`:** Ubicado en `/generadas`. Es donde el programa guarda tu sesión. Si lo borras, perderás el historial de clases cargadas en el menú.
 
